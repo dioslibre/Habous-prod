@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('./node_modules/mapbox-gl/dist/mapbox-gl.css');
+@import url('./node_modules/react-toastify/dist/ReactToastify.css');
+
+html,
+body {
+  @apply h-screen m-0 p-0 overflow-y-hidden !important;
+}
+
+#root {
+  @apply h-full;
+}
+
+.transition-group {
+  position: relative;
+}
+.route-div {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  left: 0;
+}
+/* .slow-enter {
+  opacity: 0.01;
+}
+.slow-enter.slow-enter-active {
+  opacity: 1;
+  transition: opacity 1000ms ease-in;
+}
+.slow-exit {
+  opacity: 1;
+}
+.slow-exit.slow-exit-active {
+  opacity: 0.01;
+  transition: opacity 1000ms ease-in;
+} */
+
+.fast-enter {
+  opacity: 0.01;
+}
+.fast-enter.fast-enter-active {
+  opacity: 1;
+  transition: opacity 300ms ease-in;
+}
+.fast-exit {
+  opacity: 1;
+}
+.fast-exit.fast-exit-active {
+  opacity: 0.01;
+  transition: opacity 300ms ease-in;
+}
+
+* {
+  @apply rounded-none;
+}
+
+.bx-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* Track */
+.bx-scrollable::-webkit-scrollbar-track {
+  -webkit-border-radius: 0px;
+  border-radius: 0px;
+}
+
+/* Handle */
+.bx-scrollable::-webkit-scrollbar-thumb {
+  -webkit-border-radius: 0px;
+  border-radius: 0px;
+  @apply bg-blue-600;
+}
+
+.ticks-enter {
+  opacity: 0.01;
+}
+
+.ticks-enter.ticks-enter-active {
+  opacity: 1;
+  transition: opacity 200ms ease-in;
+}
+
+.ticks-leave {
+  opacity: 1;
+}
+
+.ticks-leave.ticks-leave-active {
+  opacity: 0.01;
+  transition: opacity 200ms ease-in;
+}
+
+.tick-grp {
+  -webkit-transition: -webkit-transform 2s;
+  transition: transform 100ms;
+}
+
+bx-btn {
+  min-width: 3rem;
+}
+
+bx-btn > svg {
+  margin-left: 0;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  @apply mt-8;
+}
+
+td,
+th {
+  border: 1px solid #eeeeee;
+  text-align: left;
+  padding: 6px;
+  @apply text-sm;
+}
+
+tr:nth-child(even) {
+  background-color: #eeeeee;
+}
