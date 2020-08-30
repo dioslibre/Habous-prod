@@ -154,6 +154,9 @@ function Reference() {
           colorScheme={'light'}
           size="sm"
           placeholder="Référence foncière"
+          onChange={(event) =>
+            editPropertyEvents['referenceChanged'](event?.detail?.value)
+          }
         />
       </div>
     </div>

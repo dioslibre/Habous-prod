@@ -1,6 +1,6 @@
 import { h, Fragment } from 'preact'
 import { useHistory } from 'react-router-dom'
-import { useCallback, useEffect } from 'preact/hooks'
+import { useCallback, useEffect, useState } from 'preact/hooks'
 import BXButton from 'carbon-web-components/es/components-react/button/button'
 import SidebarPanel from '../SidebarPanel'
 import Edit16 from '@carbon/icons-react/es/edit/16'
@@ -91,13 +91,33 @@ function ParentInfoNavigation() {
 }
 
 const ParentInfoMain = () => {
+  const [id, setId] = useState()
+  const history = useHistory()
   const parent = useStore($parentFormatted)
-
   const { pending: pending1 } = useStore(dataStores.$fetchProperties)
   const { pending: pending2 } = useStore(dataStores.$fetchParents)
 
+  useEffect(() => {
+    if (pending1 || pending2) return
+    if (!parent) {
+      setId(setTimeout(() => history.push('/parent-list'), 500))
+      return
+    }
+    // if (parent && id) clearTimeout(id) & setId()
+  }, [history, parent, pending1, pending2])
+
+  useEffect(() => {
+    if (pending1 || pending2) return
+    if (!id) return
+    if (parent) clearTimeout(id) & setId()
+  }, [id, parent, pending1, pending2])
+
   if (pending1 || pending2)
     return <BXLoading className="absolute top-20 left-20" type="regular" />
+
+  if (!parent) {
+    return <BXLoading className="absolute top-20 left-20" type="regular" />
+  }
 
   return (
     <div className="p-4 bx-scrollable overflow-auto h-full w-full">
@@ -116,7 +136,7 @@ const ParentInfoMain = () => {
                         {parent[0].text}
                       </BXTableCell>
                     </BXTableRow>
-                    {parent.slice(1, 3).map((e) => (
+                    {parent.slice(1, 4).map((e) => (
                       <BXTableRow key={e.id}>
                         <BXTableCell className="font-bold">{e.id}</BXTableCell>
                         <BXTableCell>{e.text}</BXTableCell>
@@ -124,7 +144,7 @@ const ParentInfoMain = () => {
                     ))}
                   </BXTableBody>
                 </BXTable>
-                {parent[4].text.map((e, index) => (
+                {parent[5].text.map((e, index) => (
                   <Fragment key={index}>
                     <BXTable size={'short'} className="shadow-md mt-8">
                       <BXTableBody colorScheme={'zebra'}>
@@ -164,10 +184,6 @@ const ParentInfoMain = () => {
 }
 
 function ParentInfo() {
-  const history = useHistory()
-  const parent = useStore($parent)
-  useEffect(() => parent || history.push('/parent-list'), [parent])
-
   return (
     <SidebarPanel
       header={'Attributs | Assiette'}

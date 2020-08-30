@@ -276,12 +276,12 @@ const fetchParents = async ({ data, isSearching, label }) => {
   if (!isSearching) found = collection.find({ deleted: false })
   else if (label) found = collection.find({ deleted: false, label })
   else {
-    const ids = Object.keys(data).map((id) => parseInt(id))
-    found = collection.find({ id: { $in: ids }, deleted: false })
+    const labels = Object.keys(data)
+    found = collection.find({ label: { $in: labels }, deleted: false })
   }
 
   return found.map((e) => {
-    e.length = data['' + e.id] || 0
+    e.length = data['' + e.label] || 0
     return e
   })
 }

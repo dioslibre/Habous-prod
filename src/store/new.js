@@ -9,6 +9,7 @@ const newPropertyNames = [
   'unitId',
   'conservationId',
   'title',
+  'label',
   'assignId',
   'natureId',
   'ownerId',

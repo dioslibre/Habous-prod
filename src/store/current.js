@@ -11,6 +11,7 @@ import { LngLatBounds } from 'mapbox-gl'
 
 export const propertyChanged = createEvent()
 export const $property = createStore(null).on(propertyChanged, (_, payload) => {
+  console.log(payload)
   return payload
 })
 
@@ -59,12 +60,16 @@ combine([$property, dataStores.$fetchParents]).watch(([property, parents]) => {
 export const $propertyFormatted = combine(
   $property,
   $parent,
-  dataStores.$fetchAttributes,
-  (property, parent, attributes) => {
+  (property, parent) => {
+    console.log('payload')
+
     if (!property) return null
     if (!parent) return null
-    const { data, pending } = attributes
-    if (!data || pending) return null
+
+    console.log('payload')
+
+    const { data } = dataStores.$fetchAttributes.getState()
+    if (!data) return null
 
     const [x, y] = transformOne(
       parent.pole,
@@ -163,6 +168,10 @@ export const $parentFormatted = combine(
         text: parent.label,
       },
       {
+        id: 'Propriétés',
+        text: parent.length,
+      },
+      {
         id: 'Polygones',
         text: parent.geometry.length,
       },
@@ -211,12 +220,11 @@ export const $propertyDocFormatted = combine(
   dataStores.$fetchAttributes,
   (doc, attributes) => {
     if (!doc) return null
+    const { data } = attributes
+    if (!data) return null
 
     const kb = doc.size / 1024
     const mb = doc.size / (1024 * 1024)
-
-    const { data, pending } = attributes
-    if (!data || pending) return null
 
     return [
       {
@@ -261,12 +269,11 @@ export const $parentDocFormatted = combine(
   dataStores.$fetchAttributes,
   (doc, attributes) => {
     if (!doc) return null
+    const { data } = attributes
+    if (!data) return null
 
     const kb = doc.size / 1024
     const mb = doc.size / (1024 * 1024)
-
-    const { data, pending } = attributes
-    if (!data || pending) return null
 
     return [
       {

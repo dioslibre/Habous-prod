@@ -34,7 +34,7 @@ const PropertyNewAction = () => {
 
   const save = useCallback(async () => {
     await savePropertyFx(property)
-    fetchPropertiesFx()
+    fetchPropertiesFx({ label: property.label })
     history.goBack()
   }, [property, history])
 
@@ -71,9 +71,6 @@ const PropertyNewAction = () => {
 function PropertyNewNavigation() {
   const history = useHistory()
   const goBack = useCallback(() => history.goBack(), [history])
-  const property = useStore($propertyFormatted)
-
-  useEffect(() => property || history.push('/'), [])
 
   return (
     <Fragment>
@@ -91,9 +88,6 @@ function PropertyNewNavigation() {
 
 const PropertyNewMain = () => {
   const { data } = useStore(dataStores.$fetchAttributes)
-  const property = useStore($propertyFormatted)
-
-  if (!property) return null
 
   return (
     <div className="p-2 bx-scrollable overflow-auto h-full w-full">
@@ -129,7 +123,7 @@ const PropertyNewMain = () => {
 function PropertyNew() {
   return (
     <SidebarPanel
-      header={'Newion | Propriété'}
+      header={'Nouvelle Propriété'}
       navigation={<PropertyNewNavigation />}
       main={<PropertyNewMain />}
       action={<PropertyNewAction />}
@@ -152,6 +146,9 @@ function Reference() {
           colorScheme={'light'}
           size="sm"
           placeholder="Référence foncière"
+          onChange={(event) =>
+            newPropertyEvents['referenceChanged'](event?.detail?.value)
+          }
         />
       </div>
     </div>
@@ -169,7 +166,7 @@ function Regime() {
         name={'regime'}
         value={value}
         onChange={(event) =>
-          newPropertyEvents['statusChanged'](event?.detail?.value)
+          newPropertyEvents['regimeChanged'](event?.detail?.value)
         }
       >
         {['Titre foncier', 'Réquisition', 'Non immatriculé'].map((r) => (

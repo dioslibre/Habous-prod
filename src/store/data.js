@@ -149,6 +149,8 @@ dataStores['$labels'] = createStore(null).on(
       data[key] = groups[key].length
     })
 
+    console.log(data)
+
     return data
   }
 )

@@ -1,6 +1,6 @@
 import { h, Fragment } from 'preact'
 import { useHistory } from 'react-router-dom'
-import { useCallback, useEffect } from 'preact/hooks'
+import { useCallback, useEffect, useState } from 'preact/hooks'
 import BXButton from 'carbon-web-components/es/components-react/button/button'
 import SidebarPanel from '../SidebarPanel'
 import Print16 from '@carbon/icons-react/es/printer/16'
@@ -12,10 +12,12 @@ import BXTableBody from 'carbon-web-components/es/components-react/data-table/ta
 import BXTableRow from 'carbon-web-components/es/components-react/data-table/table-row'
 import BXTableCell from 'carbon-web-components/es/components-react/data-table/table-cell'
 import { useStore } from 'effector-react'
-import { $propertyFormatted } from '../../store/current'
+import { $propertyFormatted, $property } from '../../store/current'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import ArrowLeft16 from '@carbon/icons-react/es/arrow--left/16'
 import { goToPrintChanged } from '../../store/navigate'
+import { dataStores } from '../../store/data'
+import BXLoading from 'carbon-web-components/es/components-react/loading/loading'
 
 /** @jsx h */
 
@@ -71,7 +73,7 @@ function PropertyInfoNavigation() {
   const history = useHistory()
   const navigate = useCallback(() => history.push('/parent-info'), [history])
   const goBack = useCallback(() => history.goBack(), [history])
-  const property = useStore($propertyFormatted)
+  const property = useStore($property)
 
   useEffect(() => property || history.push('/'), [])
 
@@ -98,9 +100,33 @@ function PropertyInfoNavigation() {
 }
 
 const PropertyInfoMain = () => {
+  const [id, setId] = useState()
+  const history = useHistory()
   const property = useStore($propertyFormatted)
+  const { pending: pending1 } = useStore(dataStores.$fetchProperties)
+  const { pending: pending2 } = useStore(dataStores.$fetchParents)
 
-  if (!property) return null
+  useEffect(() => {
+    if (pending1 || pending2) return
+    if (!property) {
+      setId(setTimeout(() => history.push('/property-list'), 500))
+      return
+    }
+    // if (property && id) clearTimeout(id) & setId()
+  }, [history, property, pending1, pending2])
+
+  useEffect(() => {
+    if (pending1 || pending2) return
+    if (!id) return
+    if (property) clearTimeout(id) & setId()
+  }, [id, property, pending1, pending2])
+
+  if (pending1 || pending2)
+    return <BXLoading className="absolute top-20 left-20" type="regular" />
+
+  if (!property) {
+    return <BXLoading className="absolute top-20 left-20" type="regular" />
+  }
 
   return (
     <div className="p-4 bx-scrollable overflow-auto h-full w-full">
