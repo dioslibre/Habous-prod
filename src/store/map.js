@@ -1,8 +1,15 @@
-import { createStore, createEvent } from 'effector'
+import { createStore, createEvent, combine } from 'effector'
 import style from './style'
 import { Map, ScaleControl } from 'mapbox-gl'
-import { viewChanged, $mapView, $mapProjection, $dpi } from './map-base'
-import { searchEvents } from './search'
+import {
+  viewChanged,
+  $mapView,
+  $mapProjection,
+  $dpi,
+  $mapBaseLayer,
+} from './map-base'
+import { searchEvents, $y } from './search'
+import { setLayerSource, transformOne } from '../workers/utils'
 
 export const divLoaded = createEvent()
 const cursorChanged = createEvent()
@@ -39,14 +46,6 @@ export const $hovered = createStore(null).on(
         { hover: true }
       )
     return payload
-  }
-)
-
-export const $mapCursor = createStore(null).on(
-  cursorChanged,
-  (store, payload) => {
-    const coordinates = payload.lngLat.wrap()
-    return [coordinates.lng, coordinates.lat]
   }
 )
 
@@ -101,8 +100,6 @@ export const $map = createStore(null).on(divLoaded, (_, id) => {
 
   map.addControl(scale)
 
-  map.on('mousemove', cursorChanged)
-
   map.on('load', () => {
     map.on('mousemove', 'data', onMouseMove)
     map.on('mouseleave', 'data', onMouseLeave)
@@ -112,13 +109,24 @@ export const $map = createStore(null).on(divLoaded, (_, id) => {
 
   map.on('dragend', () => {
     map.resize()
-    viewChanged({ center: map.getCenter(), zoom: map.getZoom() })
+    viewChanged({ center: map.getCenter().toArray(), zoom: map.getZoom() })
   })
 
   map.on('zoomend', () => {
     map.resize()
-    viewChanged({ center: map.getCenter(), zoom: map.getZoom() })
+    viewChanged({ center: map.getCenter().toArray(), zoom: map.getZoom() })
   })
 
   return map
+})
+
+$mapProjection.watch((state) => {
+  const map = $map.getState()
+  map?.setMaxBounds(state.bounds)
+})
+
+$mapBaseLayer.watch((state) => {
+  const map = $map.getState()
+  if (!map) return
+  setLayerSource(map, 'google', state)
 })

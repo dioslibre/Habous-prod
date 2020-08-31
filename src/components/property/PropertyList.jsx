@@ -1,6 +1,6 @@
 import { h, Fragment } from 'preact'
 import { useHistory } from 'react-router-dom'
-import { useCallback } from 'preact/hooks'
+import { useCallback, useState } from 'preact/hooks'
 import { useStore } from 'effector-react'
 import { memo } from 'preact/compat'
 import BXButton from 'carbon-web-components/es/components-react/button/button'
@@ -11,14 +11,66 @@ import VirtualScroll from '../../library/VirtualScroll'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import Download16 from '@carbon/icons-react/es/download/16'
 import Upload16 from '@carbon/icons-react/es/upload/16'
+import { Workbook } from 'exceljs'
 
 /** @jsx h */
 
-import { dataStores } from '../../store/data'
+import { dataStores, saveExcelFx } from '../../store/data'
 import { propertyChanged } from '../../store/current'
-import { goToPrintChanged } from '../../store/navigate'
+import { transformOne } from '../../workers/utils'
+import { $mapProjection } from '../../store/map-base'
 
 const PropertyListAction = () => {
+  const [exporting, setExporting] = useState()
+  const [importing, setImporting] = useState()
+  const props = useStore(dataStores.$fetchProperties)
+  const parents = useStore(dataStores.$fetchParents)
+  const projection = useStore($mapProjection)
+
+  const exSave = useCallback(async () => {
+    try {
+      const aoa = await saveExcelFx(
+        props.data
+          .map((e) => {
+            if (!e.label) return null
+            const parent = parents.data.find((p) => p.label === e.label)
+            if (!parent) return null
+
+            return {
+              ...e,
+              projected: transformOne(parent.pole, 'EPSG:3857', projection.id),
+            }
+          })
+          .filter((e) => e) || []
+      )
+      const workbook = new Workbook()
+      const sheet = workbook.addWorksheet('Propriétés')
+      sheet.addRows(aoa)
+
+      var row = sheet.getRow(1)
+      row.font = {
+        bold: true,
+        size: 12,
+      }
+      row.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFFAFAD2' },
+        bgColor: { argb: 'FFD8D8D8' },
+      }
+
+      autofitColumns(sheet)
+      const buffer = await workbook.xlsx.writeBuffer()
+      window.saveAs(new Blob([buffer]), 'Propriétés.xlsx')
+
+      setExporting(false)
+    } catch (err) {
+      setExporting(false)
+      console.log(err)
+      alert('Erreur')
+    }
+  }, [props, parents, projection])
+
   return (
     <div className="flex flex-row">
       <BXButton
@@ -27,16 +79,26 @@ const PropertyListAction = () => {
         disabled={false}
         size={'sm'}
       >
-        Importer <Upload16 slot="icon" />
+        {!importing ? (
+          <div className="p-0">Importer</div>
+        ) : (
+          <BXLoading className="m-0 p-0" type="small" />
+        )}
+        <Upload16 slot="icon" />
       </BXButton>
       <BXButton
         className="shadow-lg flex-grow"
         kind={'ghost'}
-        disabled={false}
+        disabled={exporting}
         size={'sm'}
-        onClick={() => goToPrintChanged(true)}
+        onClick={() => setExporting(true) & setTimeout(exSave, 100)}
       >
-        Exporter <Download16 slot="icon" />
+        {!exporting ? (
+          <div className="p-0">Exporter</div>
+        ) : (
+          <BXLoading className="m-0 p-0" type="small" />
+        )}
+        <Download16 slot="icon" />
       </BXButton>
     </div>
   )
@@ -151,3 +213,51 @@ function PropertyList() {
 }
 
 export default PropertyList
+
+function eachColumnInRange(ws, col1, col2, cb) {
+  for (let c = col1; c <= col2; c++) {
+    let col = ws.getColumn(c)
+    cb(col)
+  }
+}
+function autofitColumns(ws) {
+  // no good way to get text widths
+  eachColumnInRange(ws, 1, ws.columnCount, (column) => {
+    let maxWidth = 10
+    column.eachCell((cell) => {
+      if (!cell.isMerged && cell.value) {
+        // doesn't handle merged cells
+
+        let text = ''
+        if (typeof cell.value != 'object') {
+          // string, number, ...
+          text = cell.value.toString()
+        } else if (cell.value.richText) {
+          // richText
+          text = cell.value.richText.reduce(
+            (text, obj) => text + obj.text.toString(),
+            ''
+          )
+        }
+
+        // handle new lines -> don't forget to set wrapText: true
+        let values = text.split(/[\n\r]+/)
+
+        for (let value of values) {
+          let width = value.length
+
+          if (cell.font && cell.font.bold) {
+            width *= 1.08 // bolding increases width
+          }
+
+          maxWidth = Math.max(maxWidth, width)
+        }
+      }
+    })
+
+    maxWidth += 0.71 // compensate for observed reduction
+    maxWidth += 1 // buffer space
+
+    column.width = maxWidth
+  })
+}

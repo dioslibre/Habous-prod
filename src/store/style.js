@@ -2,21 +2,21 @@ export default {
   version: 8,
   glyphs: 'mapbox://fonts/mapbox/{fontstack}/{range}.pbf',
   sources: {
-    // Carte: {
-    //   type: 'raster',
-    //   tiles: ['http://mt0.google.com/vt/lyrs=r&hl=fr&x={x}&y={y}&z={z}'],
-    //   tileSize: 256,
-    // },
-    // Hybride: {
-    //   type: 'raster',
-    //   tiles: ['http://mt0.google.com/vt/lyrs=y&hl=fr&x={x}&y={y}&z={z}'],
-    //   tileSize: 256,
-    // },
-    // Satellite: {
-    //   type: 'raster',
-    //   tiles: ['http://mt3.google.com/vt/lyrs=s&hl=fr&x={x}&y={y}&z={z}'],
-    //   tileSize: 256,
-    // },
+    Carte: {
+      type: 'raster',
+      tiles: ['http://mt0.google.com/vt/lyrs=r&hl=fr&x={x}&y={y}&z={z}'],
+      tileSize: 256,
+    },
+    Hybride: {
+      type: 'raster',
+      tiles: ['http://mt0.google.com/vt/lyrs=y&hl=fr&x={x}&y={y}&z={z}'],
+      tileSize: 256,
+    },
+    Satellite: {
+      type: 'raster',
+      tiles: ['http://mt3.google.com/vt/lyrs=s&hl=fr&x={x}&y={y}&z={z}'],
+      tileSize: 256,
+    },
     data: {
       type: 'vector',
       tiles: ['http://localhost:7800/public.parents_fill/{z}/{x}/{y}.pbf'],
@@ -29,13 +29,13 @@ export default {
     },
   },
   layers: [
-    // {
-    //   "id": "google",
-    //   "type": "raster",
-    //   "source": "Satellite",
-    //   "minzoom": 0,
-    //   "maxzoom": 24
-    // },
+    {
+      id: 'google',
+      type: 'raster',
+      source: 'Satellite',
+      minzoom: 0,
+      maxzoom: 24,
+    },
     {
       id: 'data',
       type: 'fill',

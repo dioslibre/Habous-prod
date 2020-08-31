@@ -10,9 +10,9 @@ import ArrowLeft16 from '@carbon/icons-react/es/arrow--left/16'
 import BXInput from 'carbon-web-components/es/components-react/input/input'
 import BXRadioButtonGroup from 'carbon-web-components/es/components-react/radio-button/radio-button-group'
 import BXRadioButton from 'carbon-web-components/es/components-react/radio-button/radio-button'
-import BXComboBox from 'carbon-web-components/es/components-react/combo-box/combo-box'
+import BXDropdown from 'carbon-web-components/es/components-react/dropdown/dropdown'
 import BXTextarea from 'carbon-web-components/es/components-react/textarea/textarea'
-import BXComboBoxItem from 'carbon-web-components/es/components-react/combo-box/combo-box-item'
+import BXDropdownItem from 'carbon-web-components/es/components-react/dropdown/dropdown-item'
 import BXNumberInput from 'carbon-web-components/es/components-react/number-input/number-input'
 import { dataStores, fetchPropertiesFx, savePropertyFx } from '../../store/data'
 import {
@@ -214,21 +214,22 @@ function AttributeCombo({ value, data }) {
     <div className="flex mx-4 my-3 flex-row">
       <div className="mr-auto my-auto">{data[value].header}</div>
       <div className="shadow-md w-4/6">
-        <BXComboBox
+        <BXDropdown
           colorScheme={'light'}
           trigger-content={data[value].header}
           size={'sm'}
           onSelect={(event) =>
-            newPropertyEvents[value + 'IdChanged'](event?.detail?.item?.id)
+            newPropertyEvents[value + 'IdChanged'](event?.detail?.item?.value)
           }
           value={attrib}
         >
+          <BXDropdownItem>{data[value].header}</BXDropdownItem>
           {data[value].items.map((e) => (
-            <BXComboBoxItem id={e.id} key={e.id} value={e.id}>
+            <BXDropdownItem key={e.id} value={e.id}>
               {e.text}
-            </BXComboBoxItem>
+            </BXDropdownItem>
           ))}
-        </BXComboBox>
+        </BXDropdown>
       </div>
     </div>
   )

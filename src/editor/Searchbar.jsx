@@ -11,8 +11,8 @@ import { memo } from 'preact/compat'
 import { useStore } from 'effector-react'
 import BXLoading from 'carbon-web-components/es/components-react/loading/loading'
 import BXSearch from 'carbon-web-components/es/components-react/search/search'
-import BXCombo from 'carbon-web-components/es/components-react/combo-box/combo-box'
-import BXComboItem from 'carbon-web-components/es/components-react/combo-box/combo-box-item'
+import BXDropdown from 'carbon-web-components/es/components-react/dropdown/dropdown'
+import BXDropdownItem from 'carbon-web-components/es/components-react/dropdown/dropdown-item'
 import SearchPlus from '../components/search/SearchPlus'
 import BXButton from 'carbon-web-components/es/components-react/button/button'
 import { goToAttributeListChanged } from '../store/navigate'
@@ -72,7 +72,7 @@ const SearchUnit = memo(({ units }) => {
 
   return (
     <div className="m-2 w-56 shadow-lg">
-      <BXCombo
+      <BXDropdown
         colorScheme={'light'}
         trigger-content={'Unité'}
         size={'sm'}
@@ -80,13 +80,15 @@ const SearchUnit = memo(({ units }) => {
           searchEvents['unitIdChanged'](event?.detail?.item?.value)
         }
         value={value}
+        onClick={console.log}
       >
+        <BXDropdownItem>Unité</BXDropdownItem>
         {units.map((e) => (
-          <BXComboItem key={e.id} value={e.id}>
+          <BXDropdownItem key={e.id} value={e.id}>
             <div className="text-sm">{e.text}</div>
-          </BXComboItem>
+          </BXDropdownItem>
         ))}
-      </BXCombo>
+      </BXDropdown>
     </div>
   )
 })

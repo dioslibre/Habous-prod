@@ -11,7 +11,6 @@ import { LngLatBounds } from 'mapbox-gl'
 
 export const propertyChanged = createEvent()
 export const $property = createStore(null).on(propertyChanged, (_, payload) => {
-  console.log(payload)
   return payload
 })
 
@@ -22,6 +21,7 @@ export const $parent = createStore(null)
 export const parentChanged = createEvent()
 
 $parent.on(parentChanged, (_, payload) => {
+  console.log(payload)
   const map = $map?.getState()
   if (!map) return
   if (!payload) {

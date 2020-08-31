@@ -8,8 +8,8 @@ import { useStore } from 'effector-react'
 import { $userFormatted } from '../../store/current'
 import ArrowLeft16 from '@carbon/icons-react/es/arrow--left/16'
 import BXInput from 'carbon-web-components/es/components-react/input/input'
-import BXComboBox from 'carbon-web-components/es/components-react/combo-box/combo-box'
-import BXComboBoxItem from 'carbon-web-components/es/components-react/combo-box/combo-box-item'
+import BXDropdown from 'carbon-web-components/es/components-react/dropdown/dropdown'
+import BXDropdownItem from 'carbon-web-components/es/components-react/dropdown/dropdown-item'
 import { dataStores, updateUserFx, fetchUsersFx } from '../../store/data'
 import { editUserStores, editUserEvents, $editUser } from '../../store/edit'
 import { useHistory } from 'react-router-dom'
@@ -159,21 +159,22 @@ function RoleCombo({ data }) {
     <div className="flex mx-4 my-4 flex-row">
       <div className="mr-auto my-auto">Role</div>
       <div className="shadow-md w-4/6">
-        <BXComboBox
+        <BXDropdown
           colorScheme={'light'}
           trigger-content={'Role'}
           size={'sm'}
           onSelect={(event) =>
-            editUserEvents.roleChanged(event?.detail?.item?.id)
+            editUserEvents.roleChanged(event?.detail?.item?.value)
           }
           value={role}
         >
+          <BXDropdownItem>Role</BXDropdownItem>
           {data.map((e) => (
-            <BXComboBoxItem id={e.id} key={e.id} value={e.id}>
+            <BXDropdownItem key={e.id} value={e.id}>
               {e.header}
-            </BXComboBoxItem>
+            </BXDropdownItem>
           ))}
-        </BXComboBox>
+        </BXDropdown>
       </div>
     </div>
   )

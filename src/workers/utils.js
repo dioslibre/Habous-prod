@@ -147,7 +147,22 @@ const updateTiles = (map) => {
   map.triggerRepaint()
 }
 
+const setLayerSource = (map, layerId, source, sourceLayer) => {
+  if (!map) return
+  const oldLayers = map.getStyle().layers
+  const layerIndex = oldLayers.findIndex((l) => l.id === layerId)
+  const layerDef = oldLayers[layerIndex]
+  const before = oldLayers[layerIndex + 1] && oldLayers[layerIndex + 1].id
+  layerDef.source = source
+  if (sourceLayer) {
+    layerDef['source-layer'] = sourceLayer
+  }
+  map.removeLayer(layerId)
+  map.addLayer(layerDef, before)
+}
+
 export {
+  setLayerSource,
   getPolygonArea,
   updateTiles,
   getCentroid,

@@ -1,8 +1,8 @@
 import { h, Fragment } from 'preact'
 import { useStore } from 'effector-react'
 import { scaleChanged, $mapScale } from '../store/print'
-import BXComboBox from 'carbon-web-components/es/components-react/combo-box/combo-box'
-import BXComboBoxItem from 'carbon-web-components/es/components-react/combo-box/combo-box-item'
+import BXDropdown from 'carbon-web-components/es/components-react/dropdown/dropdown'
+import BXDropdownItem from 'carbon-web-components/es/components-react/dropdown/dropdown-item'
 
 /** @jsx h */
 
@@ -13,7 +13,7 @@ export function Scale() {
   return (
     <Fragment>
       <div className="mx-4 ml-16 my-auto">Echelle</div>
-      <BXComboBox
+      <BXDropdown
         className="my-2 w-40"
         colorScheme={'light'}
         size="sm"
@@ -21,12 +21,13 @@ export function Scale() {
         onSelect={(event) => scaleChanged(event?.detail?.item?.value)}
         value={scale}
       >
+        <BXDropdownItem>Echelle</BXDropdownItem>
         {scales.map((e, index) => (
-          <BXComboBoxItem key={index} value={e}>
+          <BXDropdownItem key={index} value={e}>
             {labels[index]}
-          </BXComboBoxItem>
+          </BXDropdownItem>
         ))}
-      </BXComboBox>
+      </BXDropdown>
     </Fragment>
   )
 }

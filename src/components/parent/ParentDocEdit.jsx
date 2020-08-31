@@ -12,8 +12,8 @@ import {
 } from '../../store/edit'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import ArrowLeft16 from '@carbon/icons-react/es/arrow--left/16'
-import BXComboBox from 'carbon-web-components/es/components-react/combo-box/combo-box'
-import BXComboBoxItem from 'carbon-web-components/es/components-react/combo-box/combo-box-item'
+import BXDropdown from 'carbon-web-components/es/components-react/dropdown/dropdown'
+import BXDropdownItem from 'carbon-web-components/es/components-react/dropdown/dropdown-item'
 import {
   dataStores,
   patchDocumentFx,
@@ -131,24 +131,25 @@ function AttributeCombo({ value, data }) {
     <div className="flex mx-4 my-4 flex-col">
       <div className="mr-auto mb-2">Type</div>
       <div className="shadow-md w-full">
-        <BXComboBox
+        <BXDropdown
           colorScheme={'light'}
           trigger-content={data[value].header}
           size={'sm'}
           onSelect={(event) =>
             console.log(event) &
             editDocumentEvents['docTypeIdChanged'](
-              parseInt(event?.detail?.item?.id || 0)
+              parseInt(event?.detail?.item?.value || 0)
             )
           }
           value={attrib}
         >
+          <BXDropdownItem>{data[value].header}</BXDropdownItem>
           {data[value].items.map((e) => (
-            <BXComboBoxItem id={e.id} key={e.id} value={e.id}>
+            <BXDropdownItem key={e.id} value={e.id}>
               {e.text}
-            </BXComboBoxItem>
+            </BXDropdownItem>
           ))}
-        </BXComboBox>
+        </BXDropdown>
       </div>
     </div>
   )

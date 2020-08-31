@@ -6,6 +6,7 @@ import { useEffect, useRef } from 'preact/hooks'
 import { divLoaded, $map } from '../store/map'
 import { FlyBar } from '../components/controls/FlyBar'
 import { ProjectionBar } from '../components/controls/ProjectionBar'
+import { Coordinates } from '../components/controls/Coordinates'
 import { BaseLayerBar } from '../components/controls/BaseLayerBar'
 
 function Map() {
@@ -22,6 +23,7 @@ function Map() {
   return (
     <div ref={ref} id="map" className="h-full relative">
       <FlyBar />
+      <Coordinates />
       <ProjectionBar />
       <BaseLayerBar />
     </div>
