@@ -16,14 +16,13 @@ import BXTextarea from 'carbon-web-components/es/components-react/textarea/texta
 import BXComboBoxItem from 'carbon-web-components/es/components-react/combo-box/combo-box-item'
 import BXLoading from 'carbon-web-components/es/components-react/loading/loading'
 import BXNumberInput from 'carbon-web-components/es/components-react/number-input/number-input'
-import { dataStores, savePropertyFx } from '../../store/data'
+import { dataStores, savePropertyFx, fetchPropertiesFx } from '../../store/data'
 import {
   editPropertyStores,
   editPropertyEvents,
   $editProperty,
 } from '../../store/edit'
 import { useHistory } from 'react-router-dom'
-import { searchEvents } from '../../store/search'
 
 /** @jsx h */
 
@@ -35,8 +34,7 @@ const PropertyEditAction = () => {
 
   const save = useCallback(async () => {
     await savePropertyFx(property)
-    searchEvents.labelChanged('')
-    searchEvents.labelChanged(parent.label)
+    fetchPropertiesFx({ label: property.label })
     history.goBack()
   }, [property, history])
 

@@ -38,15 +38,13 @@ const SearchPlus = () => {
   return (
     <div className="relative ml-4 mr-auto">
       <BXButton
-        className="m-2 shadow-md"
+        className="m-2 w-40 shadow-md"
         kind={searching ? 'danger' : undefined}
         size="sm"
         onMouseLeave={close}
         onMouseEnter={open}
       >
-        <div className="w-24 text-center whitespace-no-wrap">
-          Recherche Avancée
-        </div>
+        <div className="mx-auto whitespace-no-wrap">Recherche Avancée</div>
       </BXButton>
       <div
         style={{ transition: 'height 100ms ease-out' }}
@@ -116,21 +114,21 @@ const AttributeMulti = ({ value, data }) => {
         trigger-content={data[value].header + 's'}
         size={'sm'}
         onSelect={(event) => {
-          console.log(event)
-          const element = event.target
-          const index = attrib.indexOf(element.value)
+          const element = event.detail.item
+          const v = parseInt(element.value)
+          const index = attrib.indexOf(v)
           const newAttrib = [...attrib]
           if (index > -1) {
             newAttrib.splice(index, 1)
           } else {
-            newAttrib.push(element.value)
+            newAttrib.push(v)
           }
           searchEvents[value + 'IdsChanged'](newAttrib)
         }}
-        value={(attrib?.join && attrib?.join(',')) || ''}
+        value={attrib?.join(',') || ''}
       >
         {data[value].items.map((e) => (
-          <BXMultiSelectItem key={e.id} value={e.id}>
+          <BXMultiSelectItem key={e.id} value={e.id + ''}>
             {e.text}
           </BXMultiSelectItem>
         ))}
@@ -228,7 +226,8 @@ const Addresse = () => {
 function NumbersMax({ id }) {
   const value = useStore(searchStores[id + 'Max'])
   return (
-    <BXNumberInput
+    <BXInput
+      type="number"
       size="sm"
       allowEmpty={true}
       hideLabel={true}
@@ -248,7 +247,8 @@ function NumbersMax({ id }) {
 function NumbersMin({ id }) {
   const value = useStore(searchStores[id + 'Min'])
   return (
-    <BXNumberInput
+    <BXInput
+      type="number"
       size="sm"
       allowEmpty={true}
       hideLabel={true}

@@ -211,15 +211,15 @@ const fetchProperties = async (search = {}) => {
   if (search.reference) q.reference = search.reference
   if (search.unitId) q.unitId = search.unitId
   if (search.conservationIds && search.conservationIds.length)
-    q.conservationId = { $in: search.conservationIds.map((e) => e.id) }
+    q.conservationId = { $in: search.conservationIds }
   if (search.unitIds && search.unitIds.length)
-    q.unitId = { $in: search.unitIds.map((e) => e.id) }
+    q.unitId = { $in: search.unitIds }
   if (search.assignIds && search.assignIds.length)
-    q.assignId = { $in: search.assignIds.map((e) => e.id) }
+    q.assignId = { $in: search.assignIds }
   if (search.natureIds && search.natureIds.length)
-    q.natureId = { $in: search.natureIds.map((e) => e.id) }
+    q.natureId = { $in: search.natureIds }
   if (search.ownerIds && search.ownerIds.length)
-    q.ownerId = { $in: search.ownerIds.map((e) => e.id) }
+    q.ownerId = { $in: search.ownerIds }
   if (search.title) q.title = search.title
   if (search.areaMin) q.area = { $gte: search.areaMin }
   if (search.areaMax) q.area = { $lte: search.areaMax }

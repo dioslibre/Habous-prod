@@ -76,4 +76,18 @@ dataStores['$labels'].watch((data) => {
   })
 })
 
-export { searchEvents, searchStores, $searchCombinded }
+const xChanged = createEvent()
+const $x = createStore(null).on(xChanged, (store, payload) => payload)
+
+const yChanged = createEvent()
+const $y = createStore(null).on(yChanged, (store, payload) => payload)
+
+export {
+  searchEvents,
+  searchStores,
+  $searchCombinded,
+  xChanged,
+  yChanged,
+  $x,
+  $y,
+}

@@ -4,6 +4,9 @@ import { h } from 'preact'
 
 import { useEffect, useRef } from 'preact/hooks'
 import { divLoaded, $map } from '../store/map'
+import { FlyBar } from '../components/controls/FlyBar'
+import { ProjectionBar } from '../components/controls/ProjectionBar'
+import { BaseLayerBar } from '../components/controls/BaseLayerBar'
 
 function Map() {
   const ref = useRef()
@@ -16,7 +19,13 @@ function Map() {
     if (ref.current) setTimeout(() => divLoaded('map'))
   }, [ref])
 
-  return <div ref={ref} id="map" className="h-full" />
+  return (
+    <div ref={ref} id="map" className="h-full relative">
+      <FlyBar />
+      <ProjectionBar />
+      <BaseLayerBar />
+    </div>
+  )
 }
 
 export default Map

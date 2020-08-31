@@ -23,7 +23,6 @@ const Navbar = () => {
 
 const Users = () => {
   return (
-    // <div >
     <BXButton
       className="m-2 w-48 shadow-md ml-auto bg-white"
       size={'sm'}
@@ -32,7 +31,6 @@ const Users = () => {
     >
       <div className="mx-auto whitespace-no-wrap">Gestion des Utilisateurs</div>
     </BXButton>
-    // </div>
   )
 }
 

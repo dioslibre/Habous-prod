@@ -3,7 +3,6 @@ import style from './style'
 import { Map, ScaleControl } from 'mapbox-gl'
 import { viewChanged, $mapView, $mapProjection, $dpi } from './map-base'
 import { searchEvents } from './search'
-import { propertyChanged, parentChanged } from './current'
 
 export const divLoaded = createEvent()
 const cursorChanged = createEvent()

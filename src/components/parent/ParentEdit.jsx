@@ -15,12 +15,11 @@ import {
   $editParent,
 } from '../../store/edit'
 import { useHistory } from 'react-router-dom'
-import { dataStores, saveParentFx } from '../../store/data'
+import { dataStores, saveParentFx, fetchPropertiesFx } from '../../store/data'
 import BXLoading from 'carbon-web-components/es/components-react/loading/loading'
 import { transformMultiPolygon, updateTiles } from '../../workers/utils'
 import { $mapProjection } from '../../store/map-base'
 import { $map } from '../../store/map'
-import { searchEvents } from '../../store/search'
 
 /** @jsx h */
 
@@ -50,8 +49,7 @@ const ParentEditAction = () => {
       'EPSG:3857'
     )
     await saveParentFx({ ...parent, geometry })
-    searchEvents.labelChanged('')
-    searchEvents.labelChanged(parent.label)
+    fetchPropertiesFx({ label: parent.label })
     updateTiles($map.getState())
     history.goBack()
   }, [parent, history])
