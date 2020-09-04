@@ -29,15 +29,13 @@ import Close16 from '@carbon/icons-react/es/close/16'
 const ParentDocEditAction = () => {
   const history = useHistory()
   const goBack = useCallback(() => history.goBack(), [history])
-
   const docEdit = useStore($editDocument)
-  const { pending, data } = useStore(dataStores.$patchDocument)
 
-  console.log(data)
+  const { pending } = useStore(dataStores.$patchDocument)
 
   const save = useCallback(async () => {
     await patchDocumentFx({ model: 'parent', data: docEdit })
-    fetchParentDocumentsFx(docEdit.ownerId)
+    await fetchParentDocumentsFx(docEdit.ownerId)
     history.goBack()
   }, [docEdit, history])
 
@@ -47,7 +45,7 @@ const ParentDocEditAction = () => {
         <BXButton
           className="shadow-lg flex-grow"
           kind={'ghost'}
-          disabled={false}
+          disabled={pending}
           size={'sm'}
           onClick={goBack}
         >
@@ -56,7 +54,7 @@ const ParentDocEditAction = () => {
         <BXButton
           className="shadow-lg flex-grow"
           kind={'primary'}
-          disabled={false}
+          disabled={pending}
           size={'sm'}
           onClick={save}
         >
@@ -104,6 +102,8 @@ const ParentDocEditMain = () => {
         {({ height, width }) => {
           return (
             <div style={{ maxHeight: height, width: width }}>
+              <Title />
+              <AttributeCombo value={'doctype'} data={data} />
               <img
                 className="mx-auto my-auto"
                 src={
@@ -114,9 +114,6 @@ const ParentDocEditMain = () => {
                 height={300}
                 alt=""
               />
-
-              <Title />
-              <AttributeCombo value={'doctype'} data={data} />
             </div>
           )
         }}
@@ -136,7 +133,6 @@ function AttributeCombo({ value, data }) {
           trigger-content={data[value].header}
           size={'sm'}
           onSelect={(event) =>
-            console.log(event) &
             editDocumentEvents['docTypeIdChanged'](
               parseInt(event?.detail?.item?.value || 0)
             )

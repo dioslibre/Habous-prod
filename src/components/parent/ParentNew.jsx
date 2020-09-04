@@ -1,11 +1,10 @@
 import { h, Fragment } from 'preact'
-import { useCallback, useEffect } from 'preact/hooks'
+import { useCallback } from 'preact/hooks'
 import BXButton from 'carbon-web-components/es/components-react/button/button'
 import SidebarPanel from '../SidebarPanel'
 import Close16 from '@carbon/icons-react/es/close/16'
 import Checkmark16 from '@carbon/icons-react/es/checkmark/16'
 import { useStore } from 'effector-react'
-import { $parentFormatted } from '../../store/current'
 import ArrowLeft16 from '@carbon/icons-react/es/arrow--left/16'
 import BXInput from 'carbon-web-components/es/components-react/input/input'
 import BXTextarea from 'carbon-web-components/es/components-react/textarea/textarea'
@@ -45,7 +44,7 @@ const ParentNewAction = () => {
       'EPSG:3857'
     )
     await saveParentFx({ ...parent, geometry })
-    fetchPropertiesFx({ label: parent.label })
+    await fetchPropertiesFx({ label: parent.label })
     updateTiles($map.getState())
     history.goBack()
   }, [parent, history])
@@ -83,9 +82,6 @@ const ParentNewAction = () => {
 function ParentNewNavigation() {
   const history = useHistory()
   const goBack = useCallback(() => history.goBack(), [history])
-  const parent = useStore($parentFormatted)
-
-  useEffect(() => parent || history.push('/'), [])
 
   return (
     <Fragment>
@@ -102,12 +98,6 @@ function ParentNewNavigation() {
 }
 
 const ParentNewMain = () => {
-  const { pending: pending1 } = useStore(dataStores.$fetchProperties)
-  const { pending: pending2 } = useStore(dataStores.$fetchParents)
-
-  if (pending1 || pending2)
-    return <BXLoading className="absolute top-20 left-20" type="regular" />
-
   return (
     <div className="p-2 bx-scrollable overflow-auto h-full w-full">
       <Label />

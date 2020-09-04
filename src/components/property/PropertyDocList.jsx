@@ -189,7 +189,16 @@ const PropertyItem = memo(({ index, row }) => {
             alt=""
           />
           <div className="ml-4">
-            <p className="text-base text-black font-bold mb-2">{row.name}</p>
+            <div
+              style={{
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+              }}
+              className="text-base text-black font-bold mb-2"
+            >
+              {row.name}
+            </div>
             <p className="text-black text-base">
               {(data.doctype.items.find((e) => e.id === row.docTypeId) || {})
                 .text || 'Autre Type'}

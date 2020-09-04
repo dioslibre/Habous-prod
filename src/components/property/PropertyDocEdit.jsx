@@ -12,8 +12,8 @@ import {
 } from '../../store/edit'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import ArrowLeft16 from '@carbon/icons-react/es/arrow--left/16'
-import BXComboBox from 'carbon-web-components/es/components-react/combo-box/combo-box'
-import BXComboBoxItem from 'carbon-web-components/es/components-react/combo-box/combo-box-item'
+import BXDropdown from 'carbon-web-components/es/components-react/dropdown/dropdown'
+import BXDropdownItem from 'carbon-web-components/es/components-react/dropdown/dropdown-item'
 import {
   dataStores,
   patchDocumentFx,
@@ -31,9 +31,7 @@ const PropertyDocEditAction = () => {
   const goBack = useCallback(() => history.goBack(), [history])
 
   const docEdit = useStore($editDocument)
-  const { pending, data } = useStore(dataStores.$patchDocument)
-
-  console.log(data)
+  const { pending } = useStore(dataStores.$patchDocument)
 
   const save = useCallback(async () => {
     await patchDocumentFx({ model: 'child', data: docEdit })
@@ -47,7 +45,7 @@ const PropertyDocEditAction = () => {
         <BXButton
           className="shadow-lg flex-grow"
           kind={'ghost'}
-          disabled={false}
+          disabled={pending}
           size={'sm'}
           onClick={goBack}
         >
@@ -56,7 +54,7 @@ const PropertyDocEditAction = () => {
         <BXButton
           className="shadow-lg flex-grow"
           kind={'primary'}
-          disabled={false}
+          disabled={pending}
           size={'sm'}
           onClick={save}
         >
@@ -104,6 +102,8 @@ const PropertyDocEditMain = () => {
         {({ height, width }) => {
           return (
             <div style={{ maxHeight: height, width: width }}>
+              <Title />
+              <AttributeCombo value={'doctype'} data={data} />
               <img
                 className="mx-auto my-auto"
                 src={
@@ -114,9 +114,6 @@ const PropertyDocEditMain = () => {
                 height={300}
                 alt=""
               />
-
-              <Title />
-              <AttributeCombo value={'doctype'} data={data} />
             </div>
           )
         }}
@@ -131,24 +128,25 @@ function AttributeCombo({ value, data }) {
     <div className="flex mx-4 my-4 flex-col">
       <div className="mr-auto mb-2">Type</div>
       <div className="shadow-md w-full">
-        <BXComboBox
+        <BXDropdown
           colorScheme={'light'}
           trigger-content={data[value].header}
           size={'sm'}
           onSelect={(event) =>
             console.log(event) &
             editDocumentEvents['docTypeIdChanged'](
-              parseInt(event?.detail?.item?.id || 0)
+              parseInt(event?.detail?.item?.value || 0)
             )
           }
           value={attrib}
         >
+          <BXDropdownItem>{data[value].header}</BXDropdownItem>
           {data[value].items.map((e) => (
-            <BXComboBoxItem id={e.id} key={e.id} value={e.id}>
+            <BXDropdownItem key={e.id} value={e.id}>
               {e.text}
-            </BXComboBoxItem>
+            </BXDropdownItem>
           ))}
-        </BXComboBox>
+        </BXDropdown>
       </div>
     </div>
   )

@@ -20,6 +20,7 @@ import BXLoading from 'carbon-web-components/es/components-react/loading/loading
 import { transformMultiPolygon, updateTiles } from '../../workers/utils'
 import { $mapProjection } from '../../store/map-base'
 import { $map } from '../../store/map'
+import { $searchCombinded } from '../../store/search'
 
 /** @jsx h */
 
@@ -49,7 +50,7 @@ const ParentEditAction = () => {
       'EPSG:3857'
     )
     await saveParentFx({ ...parent, geometry })
-    fetchPropertiesFx({ label: parent.label })
+    fetchPropertiesFx($searchCombinded.getState())
     updateTiles($map.getState())
     history.goBack()
   }, [parent, history])

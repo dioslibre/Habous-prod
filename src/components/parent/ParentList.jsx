@@ -1,6 +1,6 @@
 import { h, Fragment } from 'preact'
 import { useHistory } from 'react-router-dom'
-import { useCallback } from 'preact/hooks'
+import { useCallback, useState, useEffect } from 'preact/hooks'
 import { useStore } from 'effector-react'
 import { memo } from 'preact/compat'
 import BXButton from 'carbon-web-components/es/components-react/button/button'
@@ -15,10 +15,122 @@ import Upload16 from '@carbon/icons-react/es/upload/16'
 
 /** @jsx h */
 
-import { dataStores } from '../../store/data'
+import { dataStores, postParentsFx } from '../../store/data'
 import { parentChanged } from '../../store/current'
+import { resetNewParent } from '../../store/new'
+import { $mapProjection } from '../../store/map-base'
+import { $dat, forwardDatFile } from '../../store/upload'
+import { $isSearching } from '../../store/search'
+import { saveDat, transformMultiPolygon } from '../../workers/utils'
+import { toast } from 'react-toastify'
 
 const ParentListAction = () => {
+  const history = useHistory()
+  const navigate = useCallback((path) => history.push(path), [history])
+  const [exporting, setExporting] = useState()
+  const [importing, setImporting] = useState()
+  const props = useStore(dataStores.$fetchProperties)
+  const parents = useStore(dataStores.$fetchParents)
+  const projection = useStore($mapProjection)
+  const dat = useStore($dat)
+  const isSearching = useStore($isSearching)
+
+  useEffect(() => {
+    document
+      .getElementById('read-file')
+      .addEventListener('change', forwardDatFile)
+    return () =>
+      document
+        .getElementById('read-file')
+        .removeEventListener('change', forwardDatFile)
+  }, [])
+
+  useEffect(() => {
+    if (!dat) return
+    if (!dat?.name?.toLowerCase().endsWith('txt')) return
+    setTimeout(() => inSave(), 300)
+  }, [dat])
+
+  const exSave = useCallback(async () => {
+    const data = parents.data.map((e) => {
+      return {
+        ...e,
+        projected: transformMultiPolygon(
+          e.geometry,
+          'EPSG:3857',
+          projection.id
+        ),
+      }
+    })
+    saveDat(data)
+    setExporting(false)
+  }, [parents, projection])
+
+  const inSave = useCallback(() => {
+    setImporting(true)
+
+    const reader = new FileReader()
+
+    reader.onload = async () => {
+      try {
+        const lines = reader.result.split('\n')
+        let row = { geometry: [[[]]] },
+          rows = []
+        let count = 0,
+          step = 1
+
+        for (let index = 0; index < lines.length; index++) {
+          const line = lines[index]
+          if (step === 1) {
+            row.label = line
+            step++
+            continue
+          } else if (step === 2) {
+            count = parseInt(line)
+            step++
+            continue
+          }
+
+          row.geometry[0][0].push(line.split(' ').map((e) => parseFloat(e)))
+          count--
+
+          if (!count) {
+            rows.push({
+              ...row,
+              geometry: transformMultiPolygon(
+                row.geometry,
+                projection.id,
+                'EPSG:3857'
+              ),
+            })
+            row = { geometry: [[[]]] }
+            step = 1
+          }
+        }
+
+        const unique = rows.filter(
+          (r) => !parents.data.find((e) => e.label === r.label)
+        )
+        await postParentsFx(unique)
+        toast(`${unique.length} Assiette(s) importée(s)`, {
+          position: 'bottom-left',
+          autoClose: 1000,
+        })
+        setImporting(false)
+      } catch (err) {
+        toast(`Erreur`, {
+          position: 'bottom-left',
+          type: 'error',
+          autoClose: 1000,
+        })
+        console.log(err)
+        setImporting(false)
+      }
+    }
+
+    reader.readAsText(dat)
+  }, [dat, props, projection])
+
   return (
     <div className="flex flex-row">
       <BXButton
@@ -26,24 +138,39 @@ const ParentListAction = () => {
         kind={'primary'}
         disabled={false}
         size={'sm'}
+        onClick={() => resetNewParent() & navigate('/parent-new')}
       >
         Assiette <Add16 slot="icon" />
       </BXButton>
-      <BXButton
-        className="shadow-lg flex-grow"
-        kind={'danger'}
-        disabled={false}
-        size={'sm'}
-      >
-        Importer <Upload16 slot="icon" />
-      </BXButton>
+      {isSearching ? null : (
+        <BXButton
+          className="shadow-lg flex-grow"
+          kind={'danger'}
+          disabled={importing}
+          size={'sm'}
+          onClick={() => document.getElementById('read-file').click()}
+        >
+          {!importing ? (
+            <div className="p-0">Importer</div>
+          ) : (
+            <BXLoading className="m-0 p-0" type="small" />
+          )}
+          <Upload16 slot="icon" />
+        </BXButton>
+      )}
       <BXButton
         className="shadow-lg flex-grow"
         kind={'ghost'}
-        disabled={false}
+        disabled={exporting}
         size={'sm'}
+        onClick={() => setExporting(true) & setTimeout(exSave, 100)}
       >
-        Exporter <Download16 slot="icon" />
+        {!exporting ? (
+          <div className="p-0">Exporter</div>
+        ) : (
+          <BXLoading className="m-0 p-0" type="small" />
+        )}
+        <Download16 slot="icon" />
       </BXButton>
     </div>
   )

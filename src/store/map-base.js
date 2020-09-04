@@ -44,4 +44,4 @@ combine([$mapView, $mapProjection]).watch(([view, projection]) => {
   centerChanged(transformOne(view.center, 'EPSG:4326', projection.id))
 })
 
-$centerProjected.watch(console.log)
+// $centerProjected.watch(console.log)

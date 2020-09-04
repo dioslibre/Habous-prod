@@ -1,6 +1,6 @@
 import { h, Fragment } from 'preact'
 import { useHistory } from 'react-router-dom'
-import { useCallback } from 'preact/hooks'
+import { useCallback, useState } from 'preact/hooks'
 import { useStore } from 'effector-react'
 import { memo } from 'preact/compat'
 import BXButton from 'carbon-web-components/es/components-react/button/button'
@@ -14,10 +14,36 @@ import Home16 from '@carbon/icons-react/es/home/16'
 
 /** @jsx h */
 
-import { dataStores } from '../../store/data'
+import { dataStores, updateUserFx, fetchUsersFx } from '../../store/data'
 import { userChanged } from '../../store/current'
 import ArrowLeft16 from '@carbon/icons-react/es/arrow--left/16'
 import { goToUserListChanged } from '../../store/navigate'
+import Add16 from '@carbon/icons-react/es/add/16'
+import { resetNewUser } from '../../store/new'
+import Edit16 from '@carbon/icons-react/es/edit/16'
+import TrashCan16 from '@carbon/icons-react/es/trash-can/16'
+import Checkmark20 from '@carbon/icons-react/es/checkmark/20'
+import Close20 from '@carbon/icons-react/es/close/20'
+
+const UserListAction = () => {
+  const history = useHistory()
+  const navigate = useCallback(
+    (path) => goToUserListChanged(false) & history.push(path),
+    [history]
+  )
+
+  return (
+    <BXButton
+      className="shadow-lg w-1/2 float-right"
+      kind={'danger'}
+      disabled={false}
+      size={'sm'}
+      onClick={() => resetNewUser() & navigate('/user-new')}
+    >
+      Nouvel Utilisateur <Add16 slot="icon" />
+    </BXButton>
+  )
+}
 
 function UserListNavigation() {
   const history = useHistory()
@@ -79,23 +105,40 @@ const roles = [
   { id: 'super', header: 'Super Administrateur' },
 ]
 
-const UserItem = memo(({ index, row }) => {
+// const UserItem = memo(({ index, row }) => {
+//   return (
+//     <div className="w-full flex flex-row  p-2">
+//       <BXButton
+//         key={index}
+//         className="bg-white shadow border-r-2 border-blue-600 max-w-full flex-grow"
+//         kind="ghost"
+//         size="large"
+//         onClick={navigate}
+//       ></BXButton>
+//     </div>
+//   )
+// })
+
+const UserItem = memo(({ row }) => {
   const history = useHistory()
+
   const navigate = useCallback(() => {
     userChanged(row)
-    history.push('/user-info')
+    history.push('/user-edit')
   }, [history])
 
-  return (
-    <div className="w-full flex flex-row  p-2">
-      <BXButton
-        key={index}
-        className="bg-white shadow border-r-2 border-blue-600 max-w-full flex-grow"
-        kind="ghost"
-        size="large"
-        onClick={navigate}
-      >
-        <div>
+  const save = useCallback(async () => {
+    await updateUserFx({ ...row, deleted: true })
+    fetchUsersFx()
+  }, [row, history])
+
+  const [hover, setHover] = useState(false)
+  const [remove, setRemove] = useState(false)
+
+  if (remove)
+    return (
+      <div className="shadow flex flex-row m-2 h-16 bg-white border-r-2 border-blue-600">
+        <div className="pl-4 text-black text-base my-2 flex-grow h-full">
           <p className="text-base text-black font-bold" mb-1>
             {row.name}
           </p>
@@ -103,7 +146,45 @@ const UserItem = memo(({ index, row }) => {
             {roles.find((r) => r.id === row.role).header}
           </p>
         </div>
-      </BXButton>
+        <Fragment>
+          <BXButton kind="ghost" onClick={() => setRemove(false)}>
+            <Close20 />
+          </BXButton>
+          <BXButton kind="ghost" onClick={save}>
+            <div className="text-red-600">
+              <Checkmark20 />
+            </div>
+          </BXButton>
+        </Fragment>
+      </div>
+    )
+
+  return (
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      className="shadow flex flex-row m-2 h-16 bg-white border-r-2 border-blue-600"
+    >
+      <div className="pl-4 text-black text-base my-2 flex-grow h-full">
+        <p className="text-base text-black font-bold" mb-1>
+          {row.name}
+        </p>
+        <p className="text-black text-base">
+          {roles.find((r) => r.id === row.role).header}
+        </p>
+      </div>
+      {hover ? (
+        <Fragment>
+          <BXButton kind="ghost" onClick={navigate}>
+            <Edit16 />
+          </BXButton>
+          <BXButton kind="ghost" onClick={() => setRemove(true)}>
+            <div className="text-red-600">
+              <TrashCan16 />
+            </div>
+          </BXButton>
+        </Fragment>
+      ) : null}
     </div>
   )
 })
@@ -139,6 +220,7 @@ function UserList() {
       header={'Utilisateurs'}
       navigation={<UserListNavigation />}
       main={<UserListMain item={UserItem} />}
+      action={<UserListAction />}
     />
   )
 }

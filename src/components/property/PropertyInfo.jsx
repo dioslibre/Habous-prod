@@ -16,14 +16,25 @@ import { $propertyFormatted, $property } from '../../store/current'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import ArrowLeft16 from '@carbon/icons-react/es/arrow--left/16'
 import { goToPrintChanged } from '../../store/navigate'
-import { dataStores } from '../../store/data'
+import { dataStores, savePropertyFx, fetchPropertiesFx } from '../../store/data'
 import BXLoading from 'carbon-web-components/es/components-react/loading/loading'
+import { $searchCombinded } from '../../store/search'
+import Close20 from '@carbon/icons-react/es/close/20'
+import Checkmark20 from '@carbon/icons-react/es/checkmark/20'
 
 /** @jsx h */
 
 const PropertyInfoAction = () => {
+  const [remove, setRemove] = useState(false)
   const history = useHistory()
   const navigate = useCallback((path) => history.push(path), [history])
+  const property = useStore($property)
+
+  const save = useCallback(async () => {
+    await savePropertyFx({ ...property, deleted: true })
+    fetchPropertiesFx($searchCombinded.getState())
+    history.goBack()
+  }, [property, history])
 
   return (
     <div className="flex flex-col w-full">
@@ -46,14 +57,28 @@ const PropertyInfoAction = () => {
         >
           Imprimer <Print16 slot="icon" />
         </BXButton>
-        <BXButton
-          className="shadow-lg flex-grow"
-          kind={'danger'}
-          disabled={false}
-          size={'sm'}
-        >
-          Supprimer <TrashCan16 slot="icon" />
-        </BXButton>
+        {remove ? (
+          <Fragment>
+            <BXButton size={'sm'} kind="ghost" onClick={() => setRemove(false)}>
+              <Close20 />
+            </BXButton>
+            <BXButton size={'sm'} kind="ghost" onClick={save}>
+              <div className="text-red-600">
+                <Checkmark20 />
+              </div>
+            </BXButton>
+          </Fragment>
+        ) : (
+          <BXButton
+            className="shadow-lg flex-grow"
+            kind={'danger'}
+            disabled={false}
+            size={'sm'}
+            onClick={() => setRemove(true)}
+          >
+            Supprimer <TrashCan16 slot="icon" />
+          </BXButton>
+        )}
       </div>
       <div className="flex flex-row">
         <BXButton

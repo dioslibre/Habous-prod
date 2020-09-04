@@ -49,7 +49,7 @@ export function ProjectionBar() {
       className="absolute bg-white ease-in top-2 right-2 shadow-md z-10 flex flex-row"
       style={{ width, transition: 'width 100ms ease-out' }}
     >
-      <BXButton kind="ghost" onClick={() => setWidth(50)}>
+      <BXButton onClick={() => setWidth(50)}>
         <Map20 slot="icon" />
       </BXButton>
       {width > 50 ? (

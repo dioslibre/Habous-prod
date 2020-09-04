@@ -3,7 +3,7 @@ const API_ROOT = 'http://localhost:3000/api'
 
 let TOKEN = null
 
-const setToken = (value) => (TOKEN = value)
+const setToken = async (value) => (TOKEN = value)
 
 async function send(method, url, data, resKey) {
   const headers = {},
@@ -19,7 +19,6 @@ async function send(method, url, data, resKey) {
   try {
     const response = await fetch(API_ROOT + url, opts)
     const json = await response.json()
-    console.log(json)
     return resKey ? json[resKey] : json
   } catch (err) {
     return err
@@ -35,6 +34,7 @@ const Documents = {
 const Parents = {
   all: (since) => send('get', `/parents/${since || 'undefined'}`),
   post: (data) => send('post', `/parent`, data),
+  bulk: (data) => send('post', '/parent-bulk/', data),
 }
 
 const Attributes = {
@@ -50,11 +50,7 @@ const Data = {
 
 const Auth = {
   all: () => send('get', `/users`),
-  get: (email, password) =>
-    send('post', '/login', {
-      email,
-      password,
-    }),
+  get: (data) => send('post', '/login', data),
   post: (data) => send('post', '/register', data),
   patch: (data) => send('patch', '/user', data),
 }
@@ -62,6 +58,7 @@ const Auth = {
 const Properties = {
   search: (since, search) => send('post', `/properties/${since}`, search),
   post: (data) => send('post', '/property', data),
+  bulk: (data) => send('post', '/property-bulk/', data),
 }
 
 //#endregion
@@ -306,8 +303,16 @@ const saveProperty = async (data) => {
   return await Properties.post(data)
 }
 
+const postProperties = async (data) => {
+  return await Properties.bulk(data)
+}
+
 const saveParent = async (data) => {
   return await Parents.post(data)
+}
+
+const postParents = async (data) => {
+  return await Parents.bulk(data)
 }
 
 const editAttribute = async ({ model, data }) => {
@@ -331,66 +336,20 @@ const fetchUsers = async () => {
 }
 
 const fetchUser = async ({ email, password }) => {
+  console.log({ email, password })
   const res = await Auth.get({
     email,
     password,
   })
-  if (res.token) setToken(res.token)
-  return res
+  if (res.token) {
+    setToken(res.token)
+    return res
+  }
+  return null
 }
 
 const patchDocument = async ({ model, data }) => {
   return await Documents.patch(model, data)
-}
-
-function saveExcel(data) {
-  const headers = [
-    'Unité',
-    'ID',
-    'Statut de possession',
-    'Régime',
-    'Référence',
-    'Conservation',
-    'Affectation',
-    'Consistance',
-    'Propriétaire',
-    'Superficie',
-    'Valeur Vénale',
-    'Valeur Locative',
-    'X',
-    'Y',
-    'Adresse',
-    'Note',
-  ]
-  const aoa = [
-    headers,
-    ...data.map((e) => {
-      return [
-        (db.getCollection('unit').findOne({ id: e.unitId }) || {}).text || '',
-        e.title,
-        e.status,
-        e.regime,
-        e.reference,
-        (
-          db.getCollection('conservation').findOne({ id: e.conservationId }) ||
-          {}
-        ).text || '',
-        (db.getCollection('assign').findOne({ id: e.assignId }) || {}).text ||
-          '',
-        (db.getCollection('nature').findOne({ id: e.natureId }) || {}).text ||
-          '',
-        (db.getCollection('owner').findOne({ id: e.ownerId }) || {}).text || '',
-        e.area.toFixed(4),
-        e.venale.toFixed(2),
-        e.locative.toFixed(2),
-        Math.floor(e.projected[0]),
-        Math.floor(e.projected[1]),
-        e.address,
-        e.note,
-      ]
-    }),
-  ]
-  return aoa
 }
 
 const getColorPaletteForAttributes = (attribute) => {
@@ -420,9 +379,12 @@ const getColorPaletteForAttributes = (attribute) => {
 }
 
 const obj = {
+  setToken,
   fetchAttributes,
   fetchProperties,
+  postProperties,
   fetchParents,
+  postParents,
   fetchDocuments,
   editAttribute,
   createAttribute,
@@ -433,7 +395,6 @@ const obj = {
   patchDocument,
   fetchUsers,
   fetchUser,
-  saveExcel,
   getColorPaletteForAttributes,
 }
 

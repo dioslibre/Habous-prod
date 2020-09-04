@@ -35,7 +35,7 @@ export function FlyBar() {
       className="absolute bg-white ease-in top-2 left-2 shadow-md z-10 flex flex-row"
       style={{ width, transition: 'width 100ms ease-out' }}
     >
-      <BXButton kind={'ghost'} onClick={() => setWidth(50)}>
+      <BXButton onClick={() => setWidth(50)}>
         <Location20 slot="icon" />
       </BXButton>
       {width > 50 ? <X /> : null}
@@ -92,7 +92,6 @@ const Go = () => {
 
   const go = useCallback(async () => {
     if (!x || !y) return
-    console.log(x, y)
     let coordinates = await transformOne(
       [parseFloat(x), parseFloat(y)],
       projection.id,

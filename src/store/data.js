@@ -3,8 +3,6 @@ import { createStore, createEffect } from 'effector'
 import { wrap } from 'comlink'
 
 const database = new Worker('../workers/database.js')
-// const utils = new Worker('workers/utils.js')
-// WebWorkers use `postMessage` and therefore work with Comlink.
 const db = wrap(database)
 
 //#region attributes
@@ -26,20 +24,27 @@ export const fetchPropertiesFx = createEffect({
   handler: db.fetchProperties,
 })
 
+export const postPropertiesFx = createEffect({
+  handler: db.postProperties,
+})
+
 export const savePropertyFx = createEffect({
   handler: db.saveProperty,
 })
-savePropertyFx.done.watch(() => fetchPropertiesFx())
 //#endregion
 
 //#region parent
 export const fetchParentsFx = createEffect({
   handler: db.fetchParents,
 })
+
+export const postParentsFx = createEffect({
+  handler: db.postParents,
+})
+
 export const saveParentFx = createEffect({
   handler: db.saveParent,
 })
-saveParentFx.done.watch(() => fetchParentsFx())
 //#endregion
 
 //#region auth
@@ -53,18 +58,11 @@ export const fetchUsersFx = createEffect({
 export const registerUserFx = createEffect({
   handler: db.registerUser,
 })
-registerUserFx.done.watch(() => fetchUserFx())
 
 export const updateUserFx = createEffect({
   handler: db.updateUser,
 })
-updateUserFx.done.watch(() => fetchUsersFx())
 //#endregion
-
-//#region other
-export const saveExcelFx = createEffect({
-  handler: db.saveExcel,
-})
 
 export const getColorPaletteForAttributesFx = createEffect({
   handler: db.getColorPaletteForAttributes,
@@ -98,7 +96,6 @@ export const events = {
   patchDocumentFx,
   fetchUsersFx,
   fetchUserFx,
-  saveExcelFx,
   getColorPaletteForAttributesFx,
 }
 

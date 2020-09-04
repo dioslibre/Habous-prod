@@ -16,6 +16,7 @@ import BXDropdownItem from 'carbon-web-components/es/components-react/dropdown/d
 import SearchPlus from '../components/search/SearchPlus'
 import BXButton from 'carbon-web-components/es/components-react/button/button'
 import { goToAttributeListChanged } from '../store/navigate'
+import { $session } from '../store/auth'
 
 const SearchReference = () => {
   const data = useStore(searchStores.reference)
@@ -97,7 +98,7 @@ const Attributes = () => {
   return (
     // <div >
     <BXButton
-      className="m-2 w-40 shadow-md"
+      className="m-2 min-w-40 w-40 shadow-md"
       size={'sm'}
       onClick={() => goToAttributeListChanged(true)}
     >
@@ -109,10 +110,6 @@ const Attributes = () => {
 
 export const Sidebar = () => {
   const { data } = useStore(dataStores.$fetchAttributes)
-
-  useEffect(() => {
-    if (!data?.unit) fetchAttributesFx()
-  }, [])
 
   if (!data?.unit)
     return (

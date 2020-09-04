@@ -23,6 +23,7 @@ import {
   $editProperty,
 } from '../../store/edit'
 import { useHistory } from 'react-router-dom'
+import { $searchCombinded } from '../../store/search'
 
 /** @jsx h */
 
@@ -34,7 +35,7 @@ const PropertyEditAction = () => {
 
   const save = useCallback(async () => {
     await savePropertyFx(property)
-    fetchPropertiesFx({ label: property.label })
+    fetchPropertiesFx($searchCombinded.getState())
     history.goBack()
   }, [property, history])
 

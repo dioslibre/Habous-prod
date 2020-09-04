@@ -1,6 +1,6 @@
 import { h, Fragment, createRef } from 'preact'
 import { useHistory } from 'react-router-dom'
-import { useCallback, useEffect } from 'preact/hooks'
+import { useCallback, useEffect, useState } from 'preact/hooks'
 import BXButton from 'carbon-web-components/es/components-react/button/button'
 import SidebarPanel from '../SidebarPanel'
 import Edit16 from '@carbon/icons-react/es/edit/16'
@@ -10,15 +10,23 @@ import BXTableBody from 'carbon-web-components/es/components-react/data-table/ta
 import BXTableRow from 'carbon-web-components/es/components-react/data-table/table-row'
 import BXTableCell from 'carbon-web-components/es/components-react/data-table/table-cell'
 import { useStore } from 'effector-react'
-import { $propertyDocFormatted, $propertyDoc } from '../../store/current'
+import {
+  $propertyDocFormatted,
+  $propertyDoc,
+  $propertyFormatted,
+} from '../../store/current'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import ArrowLeft16 from '@carbon/icons-react/es/arrow--left/16'
 import Download16 from '@carbon/icons-react/es/download/16'
 import { toast } from 'react-toastify'
+import { patchDocumentFx, fetchPropertyDocumentsFx } from '../../store/data'
+import Close20 from '@carbon/icons-react/es/close/20'
+import Checkmark20 from '@carbon/icons-react/es/checkmark/20'
 
 /** @jsx h */
 
 const PropertyDocInfoAction = () => {
+  const [remove, setRemove] = useState(false)
   const history = useHistory()
   const navigate = useCallback((path) => history.push(path), [history])
   const doc = useStore($propertyDoc)
@@ -73,6 +81,12 @@ const PropertyDocInfoAction = () => {
     request.send()
   }
 
+  const save = useCallback(async () => {
+    await patchDocumentFx({ model: 'child', data: { ...doc, deleted: true } })
+    fetchPropertyDocumentsFx(doc.ownerId)
+    history.goBack()
+  }, [doc, history])
+
   return (
     <div className="flex flex-col w-full">
       <div className="flex flex-row">
@@ -94,14 +108,28 @@ const PropertyDocInfoAction = () => {
         >
           Télécharger <Download16 slot="icon" />
         </BXButton>
-        <BXButton
-          className="shadow-lg flex-grow"
-          kind={'danger'}
-          disabled={false}
-          size={'sm'}
-        >
-          Supprimer <TrashCan16 slot="icon" />
-        </BXButton>
+        {remove ? (
+          <Fragment>
+            <BXButton size={'sm'} kind="ghost" onClick={() => setRemove(false)}>
+              <Close20 />
+            </BXButton>
+            <BXButton size={'sm'} kind="ghost" onClick={save}>
+              <div className="text-red-600">
+                <Checkmark20 />
+              </div>
+            </BXButton>
+          </Fragment>
+        ) : (
+          <BXButton
+            className="shadow-lg flex-grow"
+            kind={'danger'}
+            disabled={false}
+            size={'sm'}
+            onClick={() => setRemove(true)}
+          >
+            Supprimer <TrashCan16 slot="icon" />
+          </BXButton>
+        )}
       </div>
     </div>
   )
@@ -127,6 +155,7 @@ function PropertyDocInfoNavigation() {
 
 const PropertyDocInfoMain = () => {
   const doc = useStore($propertyDoc)
+  const property = useStore($propertyFormatted)
   const docF = useStore($propertyDocFormatted)
 
   useEffect(() => doc || history.push('/parent-info'), [doc])
@@ -145,12 +174,27 @@ const PropertyDocInfoMain = () => {
                     `https://placehold.co/300?text=${doc.name.split('.').pop()}`
                   }
                   width={300}
-                  height={300}
                   alt=""
                 />
               </div>
               <BXTable size={'short'} className="shadow-md mt-4">
                 <BXTableBody colorScheme={'zebra'}>
+                  <BXTableRow>
+                    <BXTableCell className="font-bold text-base">
+                      Unité
+                    </BXTableCell>
+                    <BXTableCell className="font-bold text-base">
+                      {property.find((e) => e.id === 'Unité').text}
+                    </BXTableCell>
+                  </BXTableRow>
+                  <BXTableRow>
+                    <BXTableCell className="font-bold text-base">
+                      ID
+                    </BXTableCell>
+                    <BXTableCell className="font-bold text-base">
+                      {property.find((e) => e.id === 'ID').text}
+                    </BXTableCell>
+                  </BXTableRow>
                   <BXTableRow>
                     <BXTableCell className="font-bold text-base">
                       {docF[0].id}

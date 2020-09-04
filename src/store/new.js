@@ -31,7 +31,7 @@ newPropertyNames.forEach((name) => {
     newPropertyEvents[name + 'Changed'],
     (_, payload) => payload
   )
-  newPropertyStores[name].watch(console.log)
+  // newPropertyStores[name].watch(console.log)
 })
 
 const $newProperty = combine(newPropertyStores)
@@ -70,7 +70,7 @@ newUserNames.forEach((name) => {
     newUserEvents[name + 'Changed'],
     (_, payload) => payload
   )
-  newUserStores[name].watch(console.log)
+  // newUserStores[name].watch(console.log)
 })
 
 const $newUser = combine(newUserStores)

@@ -1,6 +1,6 @@
 import { h, Fragment, createRef } from 'preact'
 import { useHistory } from 'react-router-dom'
-import { useCallback, useEffect } from 'preact/hooks'
+import { useCallback, useEffect, useState } from 'preact/hooks'
 import BXButton from 'carbon-web-components/es/components-react/button/button'
 import SidebarPanel from '../SidebarPanel'
 import Edit16 from '@carbon/icons-react/es/edit/16'
@@ -10,15 +10,23 @@ import BXTableBody from 'carbon-web-components/es/components-react/data-table/ta
 import BXTableRow from 'carbon-web-components/es/components-react/data-table/table-row'
 import BXTableCell from 'carbon-web-components/es/components-react/data-table/table-cell'
 import { useStore } from 'effector-react'
-import { $parentDocFormatted, $parentDoc } from '../../store/current'
+import {
+  $parentDocFormatted,
+  $parentDoc,
+  $parentFormatted,
+} from '../../store/current'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import ArrowLeft16 from '@carbon/icons-react/es/arrow--left/16'
 import Download16 from '@carbon/icons-react/es/download/16'
 import { toast } from 'react-toastify'
+import { patchDocumentFx, fetchParentDocumentsFx } from '../../store/data'
+import Close20 from '@carbon/icons-react/es/close/20'
+import Checkmark20 from '@carbon/icons-react/es/checkmark/20'
 
 /** @jsx h */
 
 const ParentDocInfoAction = () => {
+  const [remove, setRemove] = useState(false)
   const history = useHistory()
   const navigate = useCallback((path) => history.push(path), [history])
   const doc = useStore($parentDoc)
@@ -28,7 +36,7 @@ const ParentDocInfoAction = () => {
     let request = new XMLHttpRequest()
     request.open(
       'GET',
-      `http://localhost:3000/api/document/parent_doc/${file.id}`
+      `http://localhost:3000/api/document/child_doc/${file.id}`
     )
     request.responseType = 'blob'
 
@@ -73,6 +81,12 @@ const ParentDocInfoAction = () => {
     request.send()
   }
 
+  const save = useCallback(async () => {
+    await patchDocumentFx({ model: 'child', data: { ...doc, deleted: true } })
+    fetchParentDocumentsFx(doc.ownerId)
+    history.goBack()
+  }, [doc, history])
+
   return (
     <div className="flex flex-col w-full">
       <div className="flex flex-row">
@@ -94,14 +108,28 @@ const ParentDocInfoAction = () => {
         >
           Télécharger <Download16 slot="icon" />
         </BXButton>
-        <BXButton
-          className="shadow-lg flex-grow"
-          kind={'danger'}
-          disabled={false}
-          size={'sm'}
-        >
-          Supprimer <TrashCan16 slot="icon" />
-        </BXButton>
+        {remove ? (
+          <Fragment>
+            <BXButton size={'sm'} kind="ghost" onClick={() => setRemove(false)}>
+              <Close20 />
+            </BXButton>
+            <BXButton size={'sm'} kind="ghost" onClick={save}>
+              <div className="text-red-600">
+                <Checkmark20 />
+              </div>
+            </BXButton>
+          </Fragment>
+        ) : (
+          <BXButton
+            className="shadow-lg flex-grow"
+            kind={'danger'}
+            disabled={false}
+            size={'sm'}
+            onClick={() => setRemove(true)}
+          >
+            Supprimer <TrashCan16 slot="icon" />
+          </BXButton>
+        )}
       </div>
     </div>
   )
@@ -110,9 +138,6 @@ const ParentDocInfoAction = () => {
 function ParentDocInfoNavigation() {
   const history = useHistory()
   const goBack = useCallback(() => history.goBack(), [history])
-  const doc = useStore($parentDoc)
-
-  useEffect(() => doc || history.push('/parent-info'), [doc])
 
   return (
     <Fragment>
@@ -130,9 +155,10 @@ function ParentDocInfoNavigation() {
 
 const ParentDocInfoMain = () => {
   const doc = useStore($parentDoc)
+  const parent = useStore($parentFormatted)
   const docF = useStore($parentDocFormatted)
 
-  if (!doc) return null
+  useEffect(() => doc || history.push('/parent-info'), [doc])
 
   return (
     <div className="p-4 bx-scrollable overflow-auto h-full w-full">
@@ -148,12 +174,27 @@ const ParentDocInfoMain = () => {
                     `https://placehold.co/300?text=${doc.name.split('.').pop()}`
                   }
                   width={300}
-                  height={300}
                   alt=""
                 />
               </div>
               <BXTable size={'short'} className="shadow-md mt-4">
                 <BXTableBody colorScheme={'zebra'}>
+                  <BXTableRow>
+                    <BXTableCell className="font-bold text-base">
+                      Unité
+                    </BXTableCell>
+                    <BXTableCell className="font-bold text-base">
+                      {parent.find((e) => e.id === 'Unité').text}
+                    </BXTableCell>
+                  </BXTableRow>
+                  <BXTableRow>
+                    <BXTableCell className="font-bold text-base">
+                      ID
+                    </BXTableCell>
+                    <BXTableCell className="font-bold text-base">
+                      {parent.find((e) => e.id === 'ID').text}
+                    </BXTableCell>
+                  </BXTableRow>
                   <BXTableRow>
                     <BXTableCell className="font-bold text-base">
                       {docF[0].id}

@@ -15,15 +15,29 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import Add16 from '@carbon/icons-react/es/add/16'
 import ArrowLeft16 from '@carbon/icons-react/es/arrow--left/16'
 import ArrowRight16 from '@carbon/icons-react/es/arrow--right/16'
-import { dataStores } from '../../store/data'
+import { dataStores, saveParentFx, fetchPropertiesFx } from '../../store/data'
 import BXLoading from 'carbon-web-components/es/components-react/loading/loading'
 import { newPropertyEvents } from '../../store/new'
+import { $searchCombinded } from '../../store/search'
+import { $map } from '../../store/map'
+import { updateTiles } from '../../workers/utils'
+import Close20 from '@carbon/icons-react/es/close/20'
+import Checkmark20 from '@carbon/icons-react/es/checkmark/20'
 
 /** @jsx h */
 
 const ParentInfoAction = () => {
+  const [remove, setRemove] = useState(false)
   const history = useHistory()
+  const parent = useStore($parent)
   const navigate = useCallback((path) => history.push(path), [history])
+
+  const save = useCallback(async () => {
+    await saveParentFx({ ...parent, deleted: true })
+    await fetchPropertiesFx($searchCombinded.getState())
+    updateTiles($map.getState())
+    history.goBack()
+  }, [parent, history])
 
   return (
     <div className="flex flex-col w-full">
@@ -49,14 +63,28 @@ const ParentInfoAction = () => {
         >
           Modifier <Edit16 slot="icon" />
         </BXButton>
-        <BXButton
-          className="shadow-lg flex-grow"
-          kind={'danger'}
-          disabled={false}
-          size={'sm'}
-        >
-          Supprimer <TrashCan16 slot="icon" />
-        </BXButton>
+        {remove ? (
+          <Fragment>
+            <BXButton size={'sm'} kind="ghost" onClick={() => setRemove(false)}>
+              <Close20 />
+            </BXButton>
+            <BXButton size={'sm'} kind="ghost" onClick={save}>
+              <div className="text-red-600">
+                <Checkmark20 />
+              </div>
+            </BXButton>
+          </Fragment>
+        ) : (
+          <BXButton
+            className="shadow-lg flex-grow"
+            kind={'danger'}
+            disabled={false}
+            size={'sm'}
+            onClick={() => setRemove(true)}
+          >
+            Supprimer <TrashCan16 slot="icon" />
+          </BXButton>
+        )}
       </div>
       <div className="flex flex-row">
         <BXButton

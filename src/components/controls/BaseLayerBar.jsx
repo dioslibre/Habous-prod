@@ -30,8 +30,8 @@ export function BaseLayerBar() {
       className="absolute bg-white ease-in bottom-2 right-2 shadow-md z-10 flex-row flex"
       style={{ width, transition: 'width 100ms ease-out' }}
     >
-      <BXButton kind={'ghost'} onClick={() => setWidth(50)}>
-        <Shuffle20 />
+      <BXButton onClick={() => setWidth(50)}>
+        <Shuffle20 slot="icon" />
       </BXButton>
       {width > 50 ? (
         <BXButton

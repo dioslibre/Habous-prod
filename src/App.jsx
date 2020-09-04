@@ -16,9 +16,9 @@ const App = ({ location }) => {
   const history = useHistory()
   const goToPrint = useStore($goToPrint)
 
-  const navigate = useCallback(() => history.push('/print'), [history])
+  const navigate = useCallback((path) => history.push(path), [history])
 
-  useEffect(() => goToPrint && navigate(), [goToPrint])
+  useEffect(() => goToPrint && navigate('/print'), [goToPrint])
 
   const key = location.pathname.split('/')[1]
 

@@ -10,27 +10,27 @@ import ArrowLeft16 from '@carbon/icons-react/es/arrow--left/16'
 import BXInput from 'carbon-web-components/es/components-react/input/input'
 import BXDropdown from 'carbon-web-components/es/components-react/dropdown/dropdown'
 import BXDropdownItem from 'carbon-web-components/es/components-react/dropdown/dropdown-item'
-import { dataStores, updateUserFx, fetchUsersFx } from '../../store/data'
-import { editUserStores, editUserEvents, $editUser } from '../../store/edit'
+import { dataStores, fetchUsersFx, registerUserFx } from '../../store/data'
+import { newUserStores, newUserEvents, $newUser } from '../../store/new'
 import { useHistory } from 'react-router-dom'
 import BXLoading from 'carbon-web-components/es/components-react/loading/loading'
 
 /** @jsx h */
 
-const UserEditAction = () => {
+const UserNewAction = () => {
   const history = useHistory()
   const goBack = useCallback(() => history.goBack(), [history])
 
-  const userEdit = useStore($editUser)
+  const userNew = useStore($newUser)
   const { pending, data } = useStore(dataStores.$patchDocument)
 
   console.log(data)
 
   const save = useCallback(async () => {
-    await updateUserFx(userEdit)
-    fetchUsersFx()
+    await registerUserFx(userNew)
+    await fetchUsersFx()
     history.goBack()
-  }, [userEdit, history])
+  }, [userNew, history])
 
   return (
     <div className="flex flex-row">
@@ -62,7 +62,7 @@ const UserEditAction = () => {
   )
 }
 
-function UserEditNavigation() {
+function UserNewNavigation() {
   const history = useHistory()
   const goBack = useCallback(() => history.goBack(), [history])
   const user = useStore($userFormatted)
@@ -90,7 +90,7 @@ const roles = [
   { id: 'super', header: 'Super Administrateur' },
 ]
 
-const UserEditMain = () => {
+const UserNewMain = () => {
   const user = useStore($userFormatted)
 
   if (!user) return null
@@ -105,21 +105,21 @@ const UserEditMain = () => {
   )
 }
 
-function UserEdit() {
+function UserNew() {
   return (
     <SidebarPanel
-      header={'Edition | Utilisateur'}
-      navigation={<UserEditNavigation />}
-      main={<UserEditMain />}
-      action={<UserEditAction />}
+      header={'Newion | Utilisateur'}
+      navigation={<UserNewNavigation />}
+      main={<UserNewMain />}
+      action={<UserNewAction />}
     />
   )
 }
 
-export default UserEdit
+export default UserNew
 
 function Email() {
-  const value = useStore(editUserStores.email)
+  const value = useStore(newUserStores.email)
   return (
     <div className="flex flex-row mx-4 my-3">
       <div className="mr-auto mt-4 my-auto whitespace-wrap">Email/Login</div>
@@ -129,9 +129,7 @@ function Email() {
           colorScheme={'light'}
           size="sm"
           placeholder="Email/Login"
-          onInput={(event) =>
-            editUserEvents['emailChanged'](event.target.value)
-          }
+          onInput={(event) => newUserEvents['emailChanged'](event.target.value)}
         />
       </div>
     </div>
@@ -139,7 +137,7 @@ function Email() {
 }
 
 function Password() {
-  const value = useStore(editUserStores.password)
+  const value = useStore(newUserStores.password)
   return (
     <div className="flex flex-row mx-4 my-3">
       <div className="mr-auto mt-4 my-auto whitespace-wrap">Mot de Passe</div>
@@ -151,7 +149,7 @@ function Password() {
           size="sm"
           placeholder="Mot de Passe"
           onInput={(event) =>
-            editUserEvents['passwordChanged'](event.target.value)
+            newUserEvents['passwordChanged'](event.target.value)
           }
         />
       </div>
@@ -160,7 +158,7 @@ function Password() {
 }
 
 function RoleCombo({ data }) {
-  const role = useStore(editUserStores.role)
+  const role = useStore(newUserStores.role)
   return (
     <div className="flex mx-4 my-4 flex-row">
       <div className="mr-auto my-auto">Role</div>
@@ -170,7 +168,7 @@ function RoleCombo({ data }) {
           trigger-content={'Role'}
           size={'sm'}
           onSelect={(event) =>
-            editUserEvents.roleChanged(event?.detail?.item?.value)
+            newUserEvents.roleChanged(event?.detail?.item?.value)
           }
           value={role}
         >
@@ -187,7 +185,7 @@ function RoleCombo({ data }) {
 }
 
 function Name() {
-  const value = useStore(editUserStores.name)
+  const value = useStore(newUserStores.name)
   return (
     <div className="flex mx-4 my-3 flex-row">
       <div className="mr-auto mt-4 my-auto">Nom</div>
@@ -197,7 +195,7 @@ function Name() {
           colorScheme={'light'}
           size="sm"
           placeholder="ID"
-          onInput={(event) => editUserEvents['nameChanged'](event.target.value)}
+          onInput={(event) => newUserEvents['nameChanged'](event.target.value)}
         ></BXInput>
       </div>
     </div>

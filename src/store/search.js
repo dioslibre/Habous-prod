@@ -43,7 +43,7 @@ searchNames.forEach((name) => {
 const $searchCombinded = combine(searchStores)
 
 $searchCombinded.watch(fetchPropertiesFx)
-$searchCombinded.watch(console.log)
+// $searchCombinded.watch(console.log)
 
 export const $isSearching = $searchCombinded.map((state) => {
   return (

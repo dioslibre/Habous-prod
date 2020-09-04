@@ -26,9 +26,9 @@ import HomeAttributeList from '../components/attribute/HomeAttributeList'
 import AttributeList from '../components/attribute/AttributeList'
 import UserList from '../components/user/UserList'
 import UserEdit from '../components/user/UserEdit'
-import UserInfo from '../components/user/UserInfo'
 import PropertyNew from '../components/property/PropertyNew'
 import ParentNew from '../components/parent/ParentNew'
+import UserNew from '../components/user/UserNew'
 
 const Sidebar = ({ location }) => {
   const history = useHistory()
@@ -72,8 +72,8 @@ const Sidebar = ({ location }) => {
                 <Route path="/property-new" component={PropertyNew} />
                 <Route path="/property-edit" component={PropertyEdit} />
                 <Route path="/property-info" component={PropertyInfo} />
+                <Route path="/user-new" component={UserNew} />
                 <Route path="/user-edit" component={UserEdit} />
-                <Route path="/user-info" component={UserInfo} />
                 <Route path="/property-document" component={PropertyDocList} />
                 <Route path="/parent-document" component={ParentDocList} />
                 <Route

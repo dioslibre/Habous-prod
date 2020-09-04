@@ -7,16 +7,45 @@
       type="text/javascript"
       src="//unpkg.com/file-saver@1.3.3/FileSaver.js"
     ></script>
-    <!-- 
-    <script
-      type="text/javascript"
-      src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.1.0/exceljs.min.js"
-    ></script> -->
-    <!-- <script src="https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.js"></script> -->
     <title>Portail SIG-HABOUS</title>
+    <script>
+      function loaded() {
+        const el = document.getElementById('splash-screen')
+        el.style.opacity = 0
+        setTimeout(() => document.body.removeChild(el), 2000)
+      }
+    </script>
   </head>
-  <body>
-    <input id="upload-file" multiple style="display: none;" type="file" />
+  <body onload="loaded()">
+    <input id="upload-file" multiple style="display: none" type="file" />
+    <input id="read-file" style="display: none" type="file" />
+    <div
+      id="splash-screen"
+      style="
+        transition-property: opacity;
+        transition-duration: 2000ms;
+        transition-timing-function: ease-in;
+      "
+      class="absolute z-10 h-screen w-screen flex items-center bg-white"
+    >
+      <div className="flex flex-col float-right" style="margin: auto">
+        <img
+          className="mx-auto mb-4"
+          src="/emblem.png"
+          alt="Royaume du Maroc"
+          width="300"
+          height="300"
+        />
+        <div style="margin-top: 20px">
+          <p class="text-center text-lg">المملكة المغربية</p>
+          <p class="text-center text-lg">وزارة الأوقاف والشؤون الاسلامية</p>
+          <p class="text-center text-lg">نظارة أوقاف الدار البيضاء</p>
+          <p class="text-center text-lg">
+            مصلحة الإستثمار و المحافظة على الأوقاف
+          </p>
+        </div>
+      </div>
+    </div>
     <div id="root"></div>
     <script src="/src/index.js"></script>
   </body>

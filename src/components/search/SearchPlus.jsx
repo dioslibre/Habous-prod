@@ -2,7 +2,6 @@ import { h } from 'preact'
 // import { useCallback } from 'preact/hooks'
 import BXRadioButtonGroup from 'carbon-web-components/es/components-react/radio-button/radio-button-group'
 import BXInput from 'carbon-web-components/es/components-react/input/input'
-import BXNumberInput from 'carbon-web-components/es/components-react/number-input/number-input'
 import BXButton from 'carbon-web-components/es/components-react/button/button'
 import { useStore } from 'effector-react'
 import {

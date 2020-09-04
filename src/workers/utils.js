@@ -1,4 +1,5 @@
 import proj4 from 'proj4'
+import { Workbook } from 'exceljs'
 
 proj4.defs(
   'EPSG:26191',
@@ -161,15 +162,161 @@ const setLayerSource = (map, layerId, source, sourceLayer) => {
   map.addLayer(layerDef, before)
 }
 
+const headers = [
+  'Unité',
+  'ID',
+  'Assiette',
+  'Statut de possession',
+  'Régime',
+  'Référence',
+  'Conservation',
+  'Affectation',
+  'Consistance',
+  'Propriétaire',
+  'Superficie',
+  'Valeur Vénale',
+  'Valeur Locative',
+  'X',
+  'Y',
+  'Adresse',
+  'Note',
+]
+
+async function saveExcel(data, attributes) {
+  const aoa = [
+    headers,
+    ...data.map((e) => {
+      return [
+        (attributes.unit.items.find((v) => v.id === e.unitId) || {}).text || '',
+        e.title,
+        e.label,
+        e.status,
+        e.regime,
+        e.reference,
+        (
+          attributes.conservation.items.find(
+            (v) => v.id === e.conservationId
+          ) || {}
+        ).text || '',
+        (attributes.assign.items.find((v) => v.id === e.assignId) || {}).text ||
+          '',
+        (attributes.nature.items.find((v) => v.id === e.natureId) || {}).text ||
+          '',
+        (attributes.owner.items.find((v) => v.id === e.ownerId) || {}).text ||
+          '',
+        e.area.toFixed(4),
+        e.venale.toFixed(2),
+        e.locative.toFixed(2),
+        Math.floor(e.projected[0]),
+        Math.floor(e.projected[1]),
+        e.address,
+        e.note,
+      ]
+    }),
+  ]
+
+  const workbook = new Workbook()
+  const sheet = workbook.addWorksheet('Propriétés')
+  sheet.addRows(aoa)
+
+  var row = sheet.getRow(1)
+  row.font = {
+    bold: true,
+    size: 12,
+  }
+  row.fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FFFAFAD2' },
+    bgColor: { argb: 'FFD8D8D8' },
+  }
+
+  autofitColumns(sheet)
+  const buffer = await workbook.xlsx.writeBuffer()
+  window.saveAs(new Blob([buffer]), 'Propriétés.xlsx')
+}
+
+async function saveDat(data) {
+  const lines = []
+  data.map((e) => {
+    if (e.projected.length === 1) {
+      lines.push(e.label)
+      lines.push(e.projected[0][0].length)
+      e.projected[0][0].forEach((c) =>
+        lines.push(c.map((v) => v.toFixed(2)).join(' '))
+      )
+    } else {
+      console.log(e.projected)
+      e.projected.forEach((p, i) => {
+        lines.push(e.label + `-P${i + 1}`)
+        lines.push(p[0].length)
+        p[0].forEach((c) => lines.push(c.map((v) => v.toFixed(2)).join(' ')))
+      })
+    }
+  })
+
+  window.saveAs(new Blob([lines.join('\n')]), 'Assiette.txt')
+}
+
 export {
-  setLayerSource,
-  getPolygonArea,
+  saveDat,
+  saveExcel,
   updateTiles,
   getCentroid,
-  getPositions,
   getRotation,
   transformOne,
+  getPositions,
   transformArray,
-  transformMultiPolygon,
+  setLayerSource,
+  getPolygonArea,
   getZoomForResolution,
+  transformMultiPolygon,
+}
+
+function eachColumnInRange(ws, col1, col2, cb) {
+  for (let c = col1; c <= col2; c++) {
+    let col = ws.getColumn(c)
+    cb(col)
+  }
+}
+function autofitColumns(ws) {
+  // no good way to get text widths
+  eachColumnInRange(ws, 1, ws.columnCount, (column) => {
+    let maxWidth = 10
+    column.eachCell((cell) => {
+      if (!cell.isMerged && cell.value) {
+        // doesn't handle merged cells
+
+        let text = ''
+        if (typeof cell.value != 'object') {
+          // string, number, ...
+          text = cell.value.toString()
+        } else if (cell.value.richText) {
+          // richText
+          text = cell.value.richText.reduce(
+            (text, obj) => text + obj.text.toString(),
+            ''
+          )
+        }
+
+        // handle new lines -> don't forget to set wrapText: true
+        let values = text.split(/[\n\r]+/)
+
+        for (let value of values) {
+          let width = value.length
+
+          if (cell.font && cell.font.bold) {
+            width *= 1.08 // bolding increases width
+          }
+
+          maxWidth = Math.max(maxWidth, width)
+        }
+      }
+    })
+
+    maxWidth += 0.71 // compensate for observed reduction
+    maxWidth += 1 // buffer space
+
+    column.width = maxWidth
+  })
 }

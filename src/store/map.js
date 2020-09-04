@@ -1,4 +1,4 @@
-import { createStore, createEvent, combine } from 'effector'
+import { createStore, createEvent } from 'effector'
 import style from './style'
 import { Map, ScaleControl } from 'mapbox-gl'
 import {
@@ -8,11 +8,10 @@ import {
   $dpi,
   $mapBaseLayer,
 } from './map-base'
-import { searchEvents, $y } from './search'
-import { setLayerSource, transformOne } from '../workers/utils'
+import { searchEvents } from './search'
+import { setLayerSource } from '../workers/utils'
 
 export const divLoaded = createEvent()
-const cursorChanged = createEvent()
 const hoveredChanged = createEvent()
 
 export const $mapLoaded = createStore(null).on(

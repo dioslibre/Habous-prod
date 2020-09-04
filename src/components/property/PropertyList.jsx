@@ -1,6 +1,6 @@
 import { h, Fragment } from 'preact'
 import { useHistory } from 'react-router-dom'
-import { useCallback, useState } from 'preact/hooks'
+import { useCallback, useState, useEffect } from 'preact/hooks'
 import { useStore } from 'effector-react'
 import { memo } from 'preact/compat'
 import BXButton from 'carbon-web-components/es/components-react/button/button'
@@ -11,83 +11,156 @@ import VirtualScroll from '../../library/VirtualScroll'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import Download16 from '@carbon/icons-react/es/download/16'
 import Upload16 from '@carbon/icons-react/es/upload/16'
-import { Workbook } from 'exceljs'
+import { forwardExcelFile, $excel } from '../../store/upload'
 
 /** @jsx h */
 
-import { dataStores, saveExcelFx } from '../../store/data'
+import { dataStores, postPropertiesFx } from '../../store/data'
 import { propertyChanged } from '../../store/current'
-import { transformOne } from '../../workers/utils'
+import { transformOne, saveExcel } from '../../workers/utils'
 import { $mapProjection } from '../../store/map-base'
+import { Workbook } from 'exceljs'
+import { $isSearching } from '../../store/search'
+import { toast } from 'react-toastify'
 
 const PropertyListAction = () => {
   const [exporting, setExporting] = useState()
   const [importing, setImporting] = useState()
   const props = useStore(dataStores.$fetchProperties)
+  const { data } = useStore(dataStores.$fetchAttributes)
   const parents = useStore(dataStores.$fetchParents)
   const projection = useStore($mapProjection)
+  const excel = useStore($excel)
+  const isSearching = useStore($isSearching)
+
+  useEffect(() => {
+    document
+      .getElementById('read-file')
+      .addEventListener('change', forwardExcelFile)
+    return () =>
+      document
+        .getElementById('read-file')
+        .removeEventListener('change', forwardExcelFile)
+  }, [])
+
+  useEffect(() => {
+    console.log(excel)
+    if (!excel) return
+    if (!excel?.name?.toLowerCase().endsWith('xlsx')) return
+    setTimeout(() => inSave(), 300)
+  }, [excel])
 
   const exSave = useCallback(async () => {
-    try {
-      const aoa = await saveExcelFx(
-        props.data
-          .map((e) => {
-            if (!e.label) return null
-            const parent = parents.data.find((p) => p.label === e.label)
-            if (!parent) return null
+    const all =
+      props.data
+        .map((e) => {
+          if (!e.label) return null
+          const parent = parents.data.find((p) => p.label === e.label)
+          if (!parent) return null
 
-            return {
-              ...e,
-              projected: transformOne(parent.pole, 'EPSG:3857', projection.id),
-            }
-          })
-          .filter((e) => e) || []
-      )
-      const workbook = new Workbook()
-      const sheet = workbook.addWorksheet('Propriétés')
-      sheet.addRows(aoa)
+          return {
+            ...e,
+            projected: transformOne(parent.pole, 'EPSG:3857', projection.id),
+          }
+        })
+        .filter((e) => e) || []
 
-      var row = sheet.getRow(1)
-      row.font = {
-        bold: true,
-        size: 12,
-      }
-      row.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FFFAFAD2' },
-        bgColor: { argb: 'FFD8D8D8' },
-      }
-
-      autofitColumns(sheet)
-      const buffer = await workbook.xlsx.writeBuffer()
-      window.saveAs(new Blob([buffer]), 'Propriétés.xlsx')
-
-      setExporting(false)
-    } catch (err) {
-      setExporting(false)
-      console.log(err)
-      alert('Erreur')
-    }
+    await saveExcel(all, data)
+    setExporting(false)
   }, [props, parents, projection])
 
+  const inSave = useCallback(() => {
+    setImporting(true)
+
+    const reader = new FileReader()
+
+    reader.onload = () => {
+      const buffer = reader.result
+      const properties = []
+      const wb = new Workbook()
+      wb.xlsx
+        .load(buffer)
+        .then(async (workbook) => {
+          const sheet = workbook.getWorksheet(1)
+          sheet.eachRow((row, rowIndex) => {
+            if (rowIndex === 1) return
+            const values = row.values
+            const property = {
+              unitId:
+                (data.unit.items.find((v) => v.text === values[1]) || {}).id ||
+                0,
+              title: values[2],
+              label: values[3],
+              status: values[4],
+              regime: values[5],
+              reference: values[6],
+              conservationId:
+                (
+                  data.conservation.items.find((v) => v.text === values[7]) ||
+                  {}
+                ).id || '',
+              assignId:
+                (data.assign.items.find((v) => v.text === values[8]) || {})
+                  .id || '',
+              natureId:
+                (data.nature.items.find((v) => v.text === values[9]) || {})
+                  .id || '',
+              ownerId:
+                (data.owner.items.find((v) => v.text === values[10]) || {})
+                  .id || '',
+              area: parseFloat(values[11]),
+              venale: parseFloat(values[12]),
+              locative: parseFloat(values[13]),
+              address: values[16],
+              note: values[17],
+            }
+            const duplicate = props.data.find(
+              (e) =>
+                (e.unitId === property.unitId && e.title === property.title) ||
+                e.reference === property.reference
+            )
+            if (!duplicate) properties.push(property)
+          })
+          if (properties.length) await postPropertiesFx(properties)
+          toast(`${properties.length} Propriété(s) importée(s)`, {
+            position: 'bottom-left',
+            delay: 1,
+          })
+          setImporting(false)
+        })
+        .catch((err) => {
+          toast(`Erreur`, {
+            position: 'bottom-left',
+            type: 'error',
+          })
+          console.log(err)
+          setImporting(false)
+        })
+    }
+
+    reader.readAsArrayBuffer(excel)
+  }, [excel, props])
+
   return (
-    <div className="flex flex-row">
+    <div className="w-full">
+      {isSearching ? null : (
+        <BXButton
+          className="shadow-lg w-1/2 float-right"
+          kind={'danger'}
+          disabled={importing}
+          size={'sm'}
+          onClick={() => document.getElementById('read-file').click()}
+        >
+          {!importing ? (
+            <div className="p-0">Importer</div>
+          ) : (
+            <BXLoading className="m-0 p-0" type="small" />
+          )}
+          <Upload16 slot="icon" />
+        </BXButton>
+      )}
       <BXButton
-        className="shadow-lg flex-grow"
-        kind={'danger'}
-        disabled={false}
-        size={'sm'}
-      >
-        {!importing ? (
-          <div className="p-0">Importer</div>
-        ) : (
-          <BXLoading className="m-0 p-0" type="small" />
-        )}
-        <Upload16 slot="icon" />
-      </BXButton>
-      <BXButton
-        className="shadow-lg flex-grow"
+        className="shadow-lg w-1/2 float-right"
         kind={'ghost'}
         disabled={exporting}
         size={'sm'}
@@ -213,51 +286,3 @@ function PropertyList() {
 }
 
 export default PropertyList
-
-function eachColumnInRange(ws, col1, col2, cb) {
-  for (let c = col1; c <= col2; c++) {
-    let col = ws.getColumn(c)
-    cb(col)
-  }
-}
-function autofitColumns(ws) {
-  // no good way to get text widths
-  eachColumnInRange(ws, 1, ws.columnCount, (column) => {
-    let maxWidth = 10
-    column.eachCell((cell) => {
-      if (!cell.isMerged && cell.value) {
-        // doesn't handle merged cells
-
-        let text = ''
-        if (typeof cell.value != 'object') {
-          // string, number, ...
-          text = cell.value.toString()
-        } else if (cell.value.richText) {
-          // richText
-          text = cell.value.richText.reduce(
-            (text, obj) => text + obj.text.toString(),
-            ''
-          )
-        }
-
-        // handle new lines -> don't forget to set wrapText: true
-        let values = text.split(/[\n\r]+/)
-
-        for (let value of values) {
-          let width = value.length
-
-          if (cell.font && cell.font.bold) {
-            width *= 1.08 // bolding increases width
-          }
-
-          maxWidth = Math.max(maxWidth, width)
-        }
-      }
-    })
-
-    maxWidth += 0.71 // compensate for observed reduction
-    maxWidth += 1 // buffer space
-
-    column.width = maxWidth
-  })
-}
