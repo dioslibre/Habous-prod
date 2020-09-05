@@ -40,7 +40,6 @@ const AttributeListAction = () => {
     <BXButton
       className="shadow-lg float-right"
       kind={'danger'}
-      disabled={false}
       size={'sm'}
       onClick={() =>
         createAttributeFx({ model: name, data: { text: 'Nouvel Element' } })
@@ -71,6 +70,7 @@ function AttributeListNavigation() {
 
 const PropertyItem = memo(({ row }) => {
   const name = useStore($attribute)
+  const { pending } = useStore(dataStores.$editAttribute)
   const [hover, setHover] = useState(false)
   const [edit, setEdit] = useState(false)
   const [remove, setRemove] = useState(false)
@@ -99,7 +99,11 @@ const PropertyItem = memo(({ row }) => {
             }
           >
             <div className="text-red-600">
-              <Checkmark20 />
+              {pending ? (
+                <BXLoading className="left-5 absolute" type="small" />
+              ) : (
+                <Checkmark20 />
+              )}
             </div>
           </BXButton>
         </Fragment>
@@ -123,7 +127,11 @@ const PropertyItem = memo(({ row }) => {
             }
           >
             <div className="text-red-600">
-              <Checkmark20 />
+              {pending ? (
+                <BXLoading className="left-5 absolute" type="small" />
+              ) : (
+                <Checkmark20 />
+              )}
             </div>
           </BXButton>
         </Fragment>

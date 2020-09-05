@@ -60,7 +60,6 @@ const ParentEditAction = () => {
       <BXButton
         className="shadow-lg flex-grow"
         kind={'ghost'}
-        disabled={false}
         size={'sm'}
         onClick={goBack}
       >
@@ -69,7 +68,6 @@ const ParentEditAction = () => {
       <BXButton
         className="shadow-lg flex-grow"
         kind={'danger'}
-        disabled={false}
         size={'sm'}
         onClick={save}
       >

@@ -22,6 +22,7 @@ import {
 } from '../../store/new'
 import { useHistory } from 'react-router-dom'
 import BXLoading from 'carbon-web-components/es/components-react/loading/loading'
+import { $searchCombinded } from '../../store/search'
 
 /** @jsx h */
 
@@ -33,7 +34,7 @@ const PropertyNewAction = () => {
 
   const save = useCallback(async () => {
     await savePropertyFx(property)
-    fetchPropertiesFx({ label: property.label })
+    fetchPropertiesFx($searchCombinded.getState())
     history.goBack()
   }, [property, history])
 
@@ -42,7 +43,6 @@ const PropertyNewAction = () => {
       <BXButton
         className="shadow-lg flex-grow"
         kind={'ghost'}
-        disabled={false}
         size={'sm'}
         onClick={goBack}
       >

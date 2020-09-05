@@ -14,16 +14,14 @@ import { toast } from 'react-toastify'
 /** @jsx h */
 
 import { dataStores, fetchPropertyDocumentsFx } from '../../store/data'
-import {
-  $propertyFormatted,
-  $property,
-  propertyDocChanged,
-} from '../../store/current'
+import { $property, propertyDocChanged } from '../../store/current'
 import ArrowLeft16 from '@carbon/icons-react/es/arrow--left/16'
 import { $toUpload, forwardFiles, toUploadChanged } from '../../store/upload'
+import { $session } from '../../store/auth'
 
 const PropertyDocListAction = () => {
   const files = useStore($toUpload)
+  const user = useStore($session)
   const [elRefs, setElRefs] = useState(
     Array(files.length)
       .fill()
@@ -57,9 +55,9 @@ const PropertyDocListAction = () => {
     for (let index = 0; index < elRefs.length; index++) {
       const ref = elRefs[index]
       const file = filesToUpload[index]
-      upload(file, ref, id)
+      upload(file, ref, id, user.token)
     }
-  }, [elRefs])
+  }, [elRefs, user])
 
   useEffect(() => {
     console.log('count', count)
@@ -71,12 +69,13 @@ const PropertyDocListAction = () => {
     }
   }, [count, elRefs])
 
-  const upload = (file, ref, id) => {
+  const upload = (file, ref, id, token) => {
     let data = new FormData()
     data.append('document', file)
 
     let request = new XMLHttpRequest()
     request.open('POST', `http://localhost:3000/api/document/child_doc/${id}`)
+    request.setRequestHeader('Authorization', `Token ${token}`)
 
     // upload progress event
     request.upload.addEventListener('progress', function (e) {
@@ -84,11 +83,13 @@ const PropertyDocListAction = () => {
       let completed = e.loaded / e.total
       if (!ref.current) {
         ref.current = toast(file.name, {
+          type: 'info',
           progress: completed,
           position: 'bottom-left',
         })
       } else {
         toast.update(ref.current, {
+          type: 'info',
           progress: completed,
           position: 'bottom-left',
           render: file.name + ' (' + (completed * 100).toFixed(2) + '%)',
@@ -126,9 +127,8 @@ const PropertyDocListAction = () => {
 
   return (
     <BXButton
-      className="shadow-lg float-right"
+      className="shadow-lg float-right w-1/2"
       kind={'danger'}
-      disabled={false}
       size={'sm'}
       onClick={() => document.getElementById('upload-file').click()}
     >
@@ -140,9 +140,6 @@ const PropertyDocListAction = () => {
 function PropertyDocListNavigation() {
   const history = useHistory()
   const goBack = useCallback(() => history.goBack(), [history])
-  const property = useStore($propertyFormatted)
-
-  useEffect(() => property || history.push('/'), [])
 
   return (
     <Fragment>
@@ -188,14 +185,14 @@ const PropertyItem = memo(({ index, row }) => {
             height={60}
             alt=""
           />
-          <div className="ml-4">
+          <div className="ml-4 flex-row">
             <div
               style={{
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
               }}
-              className="text-base text-black font-bold mb-2"
+              className="text-base text-black font-bold mb-2 w-56"
             >
               {row.name}
             </div>
@@ -236,9 +233,14 @@ const PropertyDocListMain = ({ item }) => {
 }
 
 function PropertyDocList() {
+  const history = useHistory()
   const property = useStore($property)
 
-  useEffect(() => property && fetchPropertyDocumentsFx(property.id), [property])
+  useEffect(
+    () =>
+      property ? fetchPropertyDocumentsFx(property.id) : history.push('/'),
+    [property, history]
+  )
 
   return (
     <SidebarPanel

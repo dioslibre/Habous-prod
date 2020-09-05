@@ -44,7 +44,6 @@ const PropertyEditAction = () => {
       <BXButton
         className="shadow-lg flex-grow"
         kind={'ghost'}
-        disabled={false}
         size={'sm'}
         onClick={goBack}
       >

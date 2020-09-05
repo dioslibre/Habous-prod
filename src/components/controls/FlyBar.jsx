@@ -21,7 +21,8 @@ export function FlyBar() {
     if (id) {
       clearTimeout(id)
       setId()
-    } else setWidth(460)
+    }
+    setWidth(460)
   }, [id])
 
   const close = useCallback(() => {
@@ -30,12 +31,12 @@ export function FlyBar() {
 
   return (
     <div
-      onMouseLeave={close}
+      onMouseLeave={() => width > 50 && close()}
       onMouseEnter={open}
       className="absolute bg-white ease-in top-2 left-2 shadow-md z-10 flex flex-row"
       style={{ width, transition: 'width 100ms ease-out' }}
     >
-      <BXButton onClick={() => setWidth(50)}>
+      <BXButton onClick={() => setWidth(50) & setId()}>
         <Location20 slot="icon" />
       </BXButton>
       {width > 50 ? <X /> : null}

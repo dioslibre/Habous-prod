@@ -20,20 +20,6 @@ import ArrowLeft16 from '@carbon/icons-react/es/arrow--left/16'
 import { goToAttributeListChanged } from '../../store/navigate'
 import Home16 from '@carbon/icons-react/es/home/16'
 
-// const HomeAttributeListAction = () => {
-//   return (
-//     <BXButton
-//       className="shadow-lg float-right"
-//       kind={'danger'}
-//       disabled={false}
-//       size={'sm'}
-//       onClick={() => document.getElementById('upload-file').click()}
-//     >
-//       Importer <Upload16 slot="icon" />
-//     </BXButton>
-//   )
-// }
-
 function HomeAttributeListNavigation() {
   const history = useHistory()
   const goBack = useCallback(

@@ -7,22 +7,24 @@ import Searchbar from '../editor/Searchbar'
 import { $session } from '../store/auth'
 import { useStore } from 'effector-react'
 import { useCallback, useEffect } from 'preact/hooks'
-import { fetchAttributesFx, fetchPropertiesFx } from '../store/data'
+import { dataStores, fetchPropertiesFx } from '../store/data'
 
 /** @jsx h */
 
 function Editor() {
   const history = useHistory()
   const user = useStore($session)
+  const { data: attrib } = useStore(dataStores.$fetchAttributes)
+  const { data: props } = useStore(dataStores.$fetchProperties)
 
   const navigate = useCallback(() => history.push('/'), [history])
 
-  useEffect(async () => {
-    if (!user.token) navigate()
+  useEffect(() => {
+    if (!user) navigate()
+    if (user && !props && attrib) fetchPropertiesFx()
+  }, [user, attrib, props])
 
-    await fetchAttributesFx()
-    await fetchPropertiesFx()
-  }, [user])
+  if (!user) return null
 
   return (
     <div className="flex-grow flex flex-col">

@@ -5,27 +5,25 @@ import BXButton from 'carbon-web-components/es/components-react/button/button'
 import SidebarPanel from '../SidebarPanel'
 import Edit16 from '@carbon/icons-react/es/edit/16'
 import TrashCan16 from '@carbon/icons-react/es/trash-can/16'
-import BXTable from 'carbon-web-components/es/components-react/data-table/table'
-import BXTableBody from 'carbon-web-components/es/components-react/data-table/table-body'
-import BXTableRow from 'carbon-web-components/es/components-react/data-table/table-row'
-import BXTableCell from 'carbon-web-components/es/components-react/data-table/table-cell'
 import { useStore } from 'effector-react'
-import {
-  $parentDocFormatted,
-  $parentDoc,
-  $parentFormatted,
-} from '../../store/current'
+import { $parentDocFormatted, $parentDoc, $parent } from '../../store/current'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import ArrowLeft16 from '@carbon/icons-react/es/arrow--left/16'
 import Download16 from '@carbon/icons-react/es/download/16'
 import { toast } from 'react-toastify'
-import { patchDocumentFx, fetchParentDocumentsFx } from '../../store/data'
+import {
+  patchDocumentFx,
+  fetchParentDocumentsFx,
+  dataStores,
+} from '../../store/data'
 import Close20 from '@carbon/icons-react/es/close/20'
 import Checkmark20 from '@carbon/icons-react/es/checkmark/20'
+import BXLoading from 'carbon-web-components/es/components-react/loading/loading'
 
 /** @jsx h */
 
 const ParentDocInfoAction = () => {
+  const { pending } = useStore(dataStores.$patchDocument)
   const [remove, setRemove] = useState(false)
   const history = useHistory()
   const navigate = useCallback((path) => history.push(path), [history])
@@ -46,11 +44,13 @@ const ParentDocInfoAction = () => {
       let completed = e.loaded / e.total
       if (!ref.current) {
         ref.current = toast(file.name, {
+          type: 'info',
           progress: completed,
           position: 'bottom-left',
         })
       } else {
         toast.update(ref.current, {
+          type: 'info',
           progress: completed,
           position: 'bottom-left',
           render: file.name + ' (' + (completed * 100).toFixed(2) + '%)',
@@ -93,7 +93,6 @@ const ParentDocInfoAction = () => {
         <BXButton
           className="shadow-lg flex-grow"
           kind={'primary'}
-          disabled={false}
           size={'sm'}
           onClick={() => navigate('/parent-document-edit')}
         >
@@ -102,7 +101,6 @@ const ParentDocInfoAction = () => {
         <BXButton
           className="shadow-lg flex-grow"
           kind={'ghost'}
-          disabled={false}
           size={'sm'}
           onClick={() => download(doc)}
         >
@@ -115,7 +113,11 @@ const ParentDocInfoAction = () => {
             </BXButton>
             <BXButton size={'sm'} kind="ghost" onClick={save}>
               <div className="text-red-600">
-                <Checkmark20 />
+                {pending ? (
+                  <BXLoading className="left-5 absolute" type="small" />
+                ) : (
+                  <Checkmark20 />
+                )}
               </div>
             </BXButton>
           </Fragment>
@@ -123,7 +125,6 @@ const ParentDocInfoAction = () => {
           <BXButton
             className="shadow-lg flex-grow"
             kind={'danger'}
-            disabled={false}
             size={'sm'}
             onClick={() => setRemove(true)}
           >
@@ -155,10 +156,8 @@ function ParentDocInfoNavigation() {
 
 const ParentDocInfoMain = () => {
   const doc = useStore($parentDoc)
-  const parent = useStore($parentFormatted)
+  const parent = useStore($parent)
   const docF = useStore($parentDocFormatted)
-
-  useEffect(() => doc || history.push('/parent-info'), [doc])
 
   return (
     <div className="p-4 bx-scrollable overflow-auto h-full w-full">
@@ -177,40 +176,33 @@ const ParentDocInfoMain = () => {
                   alt=""
                 />
               </div>
-              <BXTable size={'short'} className="shadow-md mt-4">
-                <BXTableBody colorScheme={'zebra'}>
-                  <BXTableRow>
-                    <BXTableCell className="font-bold text-base">
-                      Unité
-                    </BXTableCell>
-                    <BXTableCell className="font-bold text-base">
-                      {parent.find((e) => e.id === 'Unité').text}
-                    </BXTableCell>
-                  </BXTableRow>
-                  <BXTableRow>
-                    <BXTableCell className="font-bold text-base">
-                      ID
-                    </BXTableCell>
-                    <BXTableCell className="font-bold text-base">
-                      {parent.find((e) => e.id === 'ID').text}
-                    </BXTableCell>
-                  </BXTableRow>
-                  <BXTableRow>
-                    <BXTableCell className="font-bold text-base">
-                      {docF[0].id}
-                    </BXTableCell>
-                    <BXTableCell className="font-bold text-base">
+              <table size={'short'} className="shadow-md mt-4">
+                <tr>
+                  <th className="font-bold text-base">Assiette</th>
+                  <th className="font-bold text-base">{parent.label}</th>
+                </tr>
+                <tr>
+                  <td className="font-bold text-base">{docF[0].id}</td>
+                  <td className="font-bold text-base">
+                    <div
+                      style={{
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                      }}
+                      className="text-base text-black font-bold w-56"
+                    >
                       {docF[0].text}
-                    </BXTableCell>
-                  </BXTableRow>
-                  {docF.slice(1).map((e) => (
-                    <BXTableRow key={e.id}>
-                      <BXTableCell className="font-bold">{e.id}</BXTableCell>
-                      <BXTableCell>{e.text}</BXTableCell>
-                    </BXTableRow>
-                  ))}
-                </BXTableBody>
-              </BXTable>
+                    </div>
+                  </td>
+                </tr>
+                {docF.slice(1).map((e) => (
+                  <tr key={e.id}>
+                    <td className="font-bold">{e.id}</td>
+                    <td>{e.text}</td>
+                  </tr>
+                ))}
+              </table>
             </div>
           )
         }}
@@ -220,6 +212,11 @@ const ParentDocInfoMain = () => {
 }
 
 function ParentDocInfo() {
+  const history = useHistory()
+  const doc = useStore($parentDoc)
+
+  useEffect(() => doc || history.push('/'), [doc, history])
+
   return (
     <SidebarPanel
       header={'Attributs | Document | Assiette'}

@@ -8,8 +8,6 @@ import {
   passwordChanged,
   $password,
   sessionChanged,
-  saveSessionChanged,
-  $saveSession,
 } from '../store/auth'
 import { useStore } from 'effector-react'
 import BXButton from 'carbon-web-components/es/components-react/button/button'
@@ -20,7 +18,6 @@ import logo from '../logo.png'
 import { fetchUserFx, dataStores } from '../store/data'
 import BXLoading from 'carbon-web-components/es/components-react/loading/loading'
 import { toast } from 'react-toastify'
-import BXCheckbox from 'carbon-web-components/es/components-react/checkbox/checkbox'
 
 /** @jsx h */
 
@@ -43,7 +40,6 @@ function Auth() {
         <div className="flex flex-col w-4/6 mx-auto">
           <Email />
           <Password />
-          <SaveSession />
           <Login />
         </div>
       </div>
@@ -64,9 +60,13 @@ function Email() {
 
   return (
     <div className="shadow-md flex flex-row my-2">
-      <BXButton disabled={true} size="sm" className="h-10 w-12 min-w-0 mt-3">
-        <User20 slot="icon" />
-      </BXButton>
+      <div
+        disabled={true}
+        size="sm"
+        className="h-10 bg-blue-600 w-12 min-w-0 mt-3"
+      >
+        <User20 className="mx-auto mt-3 text-white" />
+      </div>
       <BXInput
         ref={ref}
         disabled={pending}
@@ -85,9 +85,13 @@ function Password() {
 
   return (
     <div className="shadow-md flex flex-row my-2">
-      <BXButton disabled={true} size="sm" className="h-10 w-12 min-w-0 mt-3">
-        <Password20 slot="icon" />
-      </BXButton>
+      <div
+        disabled={true}
+        size="sm"
+        className="h-10 bg-blue-600 w-12 min-w-0 mt-3"
+      >
+        <Password20 className="mx-auto mt-3 text-white" />
+      </div>
       <BXInput
         type="password"
         value={value}
@@ -96,27 +100,6 @@ function Password() {
         placeholder="Mot de Passe"
         onInput={(event) => passwordChanged(event.target.value)}
       ></BXInput>
-    </div>
-  )
-}
-
-function SaveSession() {
-  const { pending } = useStore(dataStores.$fetchUser)
-  const value = useStore($saveSession)
-
-  return (
-    <div className="flex flex-row my-4">
-      <BXCheckbox
-        disabled={pending}
-        labelText={''}
-        onChange={(event) => {
-          saveSessionChanged(event.target.checked)
-        }}
-        id={'save-session'}
-        value={value}
-      >
-        <div className="ml-8 text-base">Maintenir la Session</div>
-      </BXCheckbox>
     </div>
   )
 }

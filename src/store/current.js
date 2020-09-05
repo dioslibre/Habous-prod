@@ -79,14 +79,14 @@ export const $propertyFormatted = combine(
 
     return [
       {
-        id: 'ID',
-        text: property.title,
-      },
-      {
         id: 'Unité',
         text:
           (data.unit.items.find((e) => e.id === property.unitId) || {}).text ||
           '',
+      },
+      {
+        id: 'ID',
+        text: property.title,
       },
       {
         id: 'Assiette',
@@ -284,7 +284,7 @@ export const $parentDocFormatted = combine(
         id: 'Type',
         text:
           (data.doctype.items.find((e) => e.id === doc.docTypeId) || {}).text ||
-          '',
+          'Autre Type',
       },
       {
         id: 'Taille',

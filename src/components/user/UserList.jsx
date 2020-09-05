@@ -7,7 +7,6 @@ import BXButton from 'carbon-web-components/es/components-react/button/button'
 import BXLoading from 'carbon-web-components/es/components-react/loading/loading'
 import SidebarPanel from '../SidebarPanel'
 import CharacterPatterns16 from '@carbon/icons-react/es/character-patterns/16'
-import ArrowRight16 from '@carbon/icons-react/es/arrow--right/16'
 import VirtualScroll from '../../library/VirtualScroll'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import Home16 from '@carbon/icons-react/es/home/16'
@@ -36,7 +35,6 @@ const UserListAction = () => {
     <BXButton
       className="shadow-lg w-1/2 float-right"
       kind={'danger'}
-      disabled={false}
       size={'sm'}
       onClick={() => resetNewUser() & navigate('/user-new')}
     >
@@ -120,6 +118,7 @@ const roles = [
 // })
 
 const UserItem = memo(({ row }) => {
+  const { pending } = useStore(dataStores.$updateUser)
   const history = useHistory()
 
   const navigate = useCallback(() => {
@@ -152,7 +151,11 @@ const UserItem = memo(({ row }) => {
           </BXButton>
           <BXButton kind="ghost" onClick={save}>
             <div className="text-red-600">
-              <Checkmark20 />
+              {pending ? (
+                <BXLoading className="left-5 absolute" type="small" />
+              ) : (
+                <Checkmark20 />
+              )}
             </div>
           </BXButton>
         </Fragment>
@@ -166,9 +169,7 @@ const UserItem = memo(({ row }) => {
       className="shadow flex flex-row m-2 h-16 bg-white border-r-2 border-blue-600"
     >
       <div className="pl-4 text-black text-base my-2 flex-grow h-full">
-        <p className="text-base text-black font-bold" mb-1>
-          {row.name}
-        </p>
+        <p className="text-base text-black font-bold">{row.name}</p>
         <p className="text-black text-base">
           {roles.find((r) => r.id === row.role).header}
         </p>

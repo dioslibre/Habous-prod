@@ -7,6 +7,7 @@ import BXButton from 'carbon-web-components/es/components-react/button/button'
 import Shuffle20 from '@carbon/icons-react/es/shuffle/20'
 import { useStore } from 'effector-react'
 import { $mapBaseLayer, baseLayerChanged } from '../../store/map-base'
+
 export function BaseLayerBar() {
   const baseLayer = useStore($mapBaseLayer)
   const [width, setWidth] = useState(50)

@@ -49,7 +49,7 @@ const SearchPlus = () => {
         style={{ transition: 'height 100ms ease-out' }}
         className={`absolute flex-grow ${
           isOpen ? 'h-96' : 'h-0'
-        } py-2 bg-transparent flex-col flex w-80 z-20 right-0`}
+        } bg-transparent flex-col flex w-80 z-20 right-0`}
         onMouseEnter={open}
         onMouseLeave={close}
       >

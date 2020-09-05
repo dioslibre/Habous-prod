@@ -113,6 +113,7 @@ const ParentListAction = () => {
         )
         await postParentsFx(unique)
         toast(`${unique.length} Assiette(s) importée(s)`, {
+          type: 'info',
           position: 'bottom-left',
           autoClose: 1000,
         })
@@ -136,7 +137,6 @@ const ParentListAction = () => {
       <BXButton
         className="shadow-lg flex-grow"
         kind={'primary'}
-        disabled={false}
         size={'sm'}
         onClick={() => resetNewParent() & navigate('/parent-new')}
       >

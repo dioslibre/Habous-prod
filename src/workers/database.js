@@ -3,7 +3,10 @@ const API_ROOT = 'http://localhost:3000/api'
 
 let TOKEN = null
 
-const setToken = async (value) => (TOKEN = value)
+const setToken = async (value) => {
+  TOKEN = value
+  console.log(value)
+}
 
 async function send(method, url, data, resKey) {
   const headers = {},

@@ -123,6 +123,7 @@ const PropertyListAction = () => {
           })
           if (properties.length) await postPropertiesFx(properties)
           toast(`${properties.length} Propriété(s) importée(s)`, {
+            type: 'info',
             position: 'bottom-left',
             delay: 1,
           })

@@ -10,13 +10,21 @@ import Auth from './pages/Auth'
 import Print from './pages/Print'
 import { useCallback, useEffect } from 'preact/hooks'
 import { useStore } from 'effector-react'
+import { $session } from './store/auth'
 import { $goToPrint } from './store/navigate'
+import { fetchAttributesFx } from './store/data'
 
 const App = ({ location }) => {
   const history = useHistory()
   const goToPrint = useStore($goToPrint)
+  const user = useStore($session)
 
   const navigate = useCallback((path) => history.push(path), [history])
+
+  useEffect(() => {
+    if (!user) navigate('/')
+    else fetchAttributesFx() & navigate('/editor')
+  }, [user])
 
   useEffect(() => goToPrint && navigate('/print'), [goToPrint])
 

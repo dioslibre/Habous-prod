@@ -5,10 +5,6 @@ import BXButton from 'carbon-web-components/es/components-react/button/button'
 import SidebarPanel from '../SidebarPanel'
 import Edit16 from '@carbon/icons-react/es/edit/16'
 import TrashCan16 from '@carbon/icons-react/es/trash-can/16'
-import BXTable from 'carbon-web-components/es/components-react/data-table/table'
-import BXTableBody from 'carbon-web-components/es/components-react/data-table/table-body'
-import BXTableRow from 'carbon-web-components/es/components-react/data-table/table-row'
-import BXTableCell from 'carbon-web-components/es/components-react/data-table/table-cell'
 import { useStore } from 'effector-react'
 import { $parentFormatted, $parent } from '../../store/current'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -23,10 +19,12 @@ import { $map } from '../../store/map'
 import { updateTiles } from '../../workers/utils'
 import Close20 from '@carbon/icons-react/es/close/20'
 import Checkmark20 from '@carbon/icons-react/es/checkmark/20'
+import { isAdmin, isUser } from '../../store/auth'
 
 /** @jsx h */
 
 const ParentInfoAction = () => {
+  const { pending } = useStore(dataStores.$saveParent)
   const [remove, setRemove] = useState(false)
   const history = useHistory()
   const parent = useStore($parent)
@@ -41,28 +39,30 @@ const ParentInfoAction = () => {
 
   return (
     <div className="flex flex-col w-full">
-      <div className="flex flexRow">
-        <BXButton
-          className="shadow-lg flex-grow"
-          kind={'primary'}
-          disabled={false}
-          size={'sm'}
-          onClick={() =>
-            newPropertyEvents.labelChanged($parent.getState().label) &
-            navigate('/property-new')
-          }
-        >
-          Propriété <Add16 slot="icon" />
-        </BXButton>
-        <BXButton
-          className="shadow-lg flex-grow"
-          kind={'primary'}
-          disabled={false}
-          size={'sm'}
-          onClick={() => navigate('/parent-edit')}
-        >
-          Modifier <Edit16 slot="icon" />
-        </BXButton>
+      <div className="flex flex-row">
+        {isAdmin() ? (
+          <BXButton
+            className="shadow-lg flex-grow"
+            kind={'primary'}
+            size={'sm'}
+            onClick={() =>
+              newPropertyEvents.labelChanged($parent.getState().label) &
+              navigate('/property-new')
+            }
+          >
+            Propriété <Add16 slot="icon" />
+          </BXButton>
+        ) : null}
+        {isUser() ? (
+          <BXButton
+            className="shadow-lg flex-grow"
+            kind={'ghost'}
+            size={'sm'}
+            onClick={() => navigate('/parent-edit')}
+          >
+            Modifier <Edit16 slot="icon" />
+          </BXButton>
+        ) : null}
         {remove ? (
           <Fragment>
             <BXButton size={'sm'} kind="ghost" onClick={() => setRemove(false)}>
@@ -70,26 +70,28 @@ const ParentInfoAction = () => {
             </BXButton>
             <BXButton size={'sm'} kind="ghost" onClick={save}>
               <div className="text-red-600">
-                <Checkmark20 />
+                {pending ? (
+                  <BXLoading className="left-5 absolute" type="small" />
+                ) : (
+                  <Checkmark20 />
+                )}
               </div>
             </BXButton>
           </Fragment>
-        ) : (
+        ) : isAdmin() ? (
           <BXButton
             className="shadow-lg flex-grow"
             kind={'danger'}
-            disabled={false}
             size={'sm'}
             onClick={() => setRemove(true)}
           >
             Supprimer <TrashCan16 slot="icon" />
           </BXButton>
-        )}
+        ) : null}
       </div>
       <div className="flex flex-row">
         <BXButton
           className="shadow-lg flex-grow max-w-full"
-          disabled={false}
           size={'sm'}
           onClick={() => navigate('/parent-document')}
         >
@@ -154,52 +156,36 @@ const ParentInfoMain = () => {
           return (
             <div style={{ maxHeight: height, width: width }}>
               <Fragment>
-                <BXTable size={'short'} className="shadow-md">
-                  <BXTableBody colorScheme={'zebra'}>
-                    <BXTableRow>
-                      <BXTableCell className="font-bold text-base">
-                        {parent[0].id}
-                      </BXTableCell>
-                      <BXTableCell className="font-bold text-base">
-                        {parent[0].text}
-                      </BXTableCell>
-                    </BXTableRow>
-                    {parent.slice(1, 4).map((e) => (
-                      <BXTableRow key={e.id}>
-                        <BXTableCell className="font-bold">{e.id}</BXTableCell>
-                        <BXTableCell>{e.text}</BXTableCell>
-                      </BXTableRow>
-                    ))}
-                  </BXTableBody>
-                </BXTable>
+                <table size={'short'} className="shadow-md mt-0">
+                  <tr>
+                    <th className="font-bold text-base">{parent[0].id}</th>
+                    <th className="font-bold text-base">{parent[0].text}</th>
+                  </tr>
+                  {parent.slice(1, 4).map((e) => (
+                    <tr key={e.id}>
+                      <td className="font-bold">{e.id}</td>
+                      <td>{e.text}</td>
+                    </tr>
+                  ))}
+                </table>
                 {parent[5].text.map((e, index) => (
                   <Fragment key={index}>
-                    <BXTable size={'short'} className="shadow-md mt-8">
-                      <BXTableBody colorScheme={'zebra'}>
-                        <BXTableRow>
-                          <BXTableCell className="text-base font-bold">
-                            Polygone
-                          </BXTableCell>
-                          <BXTableCell className="text-base font-bold">
-                            P{index + 1}
-                          </BXTableCell>
-                        </BXTableRow>
-                        <BXTableRow>
-                          <BXTableCell className="text-base font-bold">
-                            X
-                          </BXTableCell>
-                          <BXTableCell className="text-base font-bold">
-                            Y
-                          </BXTableCell>
-                        </BXTableRow>
-                        {e.map((c, jindex) => (
-                          <BXTableRow key={jindex}>
-                            <BXTableCell className="py-0">{c[0]}</BXTableCell>
-                            <BXTableCell className="py-0">{c[1]}</BXTableCell>
-                          </BXTableRow>
-                        ))}
-                      </BXTableBody>
-                    </BXTable>
+                    <table size={'short'} className="shadow-md mt-8">
+                      <tr>
+                        <th className="text-base font-bold">Polygone</th>
+                        <th className="text-base font-bold">P{index + 1}</th>
+                      </tr>
+                      <tr>
+                        <td className="text-base font-bold">X</td>
+                        <td className="text-base font-bold">Y</td>
+                      </tr>
+                      {e.map((c, jindex) => (
+                        <tr key={jindex}>
+                          <td className="font-bold">{c[0]}</td>
+                          <td>{c[1]}</td>
+                        </tr>
+                      ))}
+                    </table>
                   </Fragment>
                 ))}
               </Fragment>

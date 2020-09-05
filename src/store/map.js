@@ -10,6 +10,7 @@ import {
 } from './map-base'
 import { searchEvents } from './search'
 import { setLayerSource } from '../workers/utils'
+import { $parent } from './current'
 
 export const divLoaded = createEvent()
 const hoveredChanged = createEvent()
@@ -103,7 +104,19 @@ export const $map = createStore(null).on(divLoaded, (_, id) => {
     map.on('mousemove', 'data', onMouseMove)
     map.on('mouseleave', 'data', onMouseLeave)
     map.on('click', ((map) => (e) => onMouseClick(e, map))(map))
-    // viewChanged(true) // lost a lot hours over this shit
+    // viewChanged(true) // lost a lot hours over this fucking line
+    if ($parent.getState().id) {
+      map.setFilter('data-highlighted', [
+        'in',
+        'parent_id',
+        $parent.getState().id,
+      ])
+      map.setFilter('data-outline-highlighted', [
+        'in',
+        'parent_id',
+        $parent.getState().id,
+      ])
+    }
   })
 
   map.on('dragend', () => {

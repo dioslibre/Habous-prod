@@ -17,7 +17,7 @@ export default function PrintInfo() {
     <div className="p-4 h-full w-2/5">
       <table className="shadow-md">
         <tr>
-          <th className="">ID</th>
+          <th className="">{property[0].id}</th>
           <th className="">{property[0].text}</th>
         </tr>
         {property

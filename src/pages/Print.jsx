@@ -1,3 +1,4 @@
+import { h } from 'preact'
 import { PrintActions } from './../print/Actions'
 import Footer from './../print/Footer'
 import { useEffect } from 'preact/hooks'
@@ -6,7 +7,6 @@ import Viewport from '../print/Viewport'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 import { Scale } from '../print/Scale'
 import { DatePicker } from '../print/DatePicker'
-import { h } from 'preact'
 
 /** @jsx h */
 
@@ -24,7 +24,6 @@ function PrintContent() {
           height: '20.9cm',
           width: '29.7cm',
           margin: 'auto',
-          // border: '1px solid silver',
         }}
         className="flex flex-col"
       >

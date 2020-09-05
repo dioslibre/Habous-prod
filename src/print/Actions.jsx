@@ -16,12 +16,13 @@ import BXLoading from 'carbon-web-components/es/components-react/loading/loading
 export function PrintActions() {
   const history = useHistory()
   const navigate = useCallback(
-    () => goToPrintChanged(false) & history.push('/editor'),
+    () => goToPrintChanged(false) & history.push('/editor/property-info'),
     [history]
   )
   const [done, setDone] = useState(true)
   const [closing, setClosing] = useState(false)
   const property = useStore($property)
+
   const print = useCallback(() => {
     setDone(false)
     setTimeout(() => {
@@ -43,9 +44,8 @@ export function PrintActions() {
       <BXButton
         className="bg-white w-40 h-4 mt-2 ml-16"
         kind={'secondary'}
-        disabled={false}
         size={'sm'}
-        onClick={() => setClosing(true) & navigate('/property-edit')}
+        onClick={() => setClosing(true) & navigate()}
       >
         <Fragment>
           {!closing ? (

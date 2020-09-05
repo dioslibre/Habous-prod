@@ -81,6 +81,10 @@ export const patchDocumentFx = createEffect({
 })
 //#endregion
 
+export const setTokenFx = createEffect({
+  handler: db.setToken,
+})
+
 export const events = {
   fetchAttributesFx,
   fetchPropertiesFx,
@@ -89,6 +93,7 @@ export const events = {
   fetchParentsFx,
   editAttributeFx,
   createAttributeFx,
+  setTokenFx,
   savePropertyFx,
   saveParentFx,
   updateUserFx,
