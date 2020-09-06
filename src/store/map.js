@@ -105,7 +105,7 @@ export const $map = createStore(null).on(divLoaded, (_, id) => {
     map.on('mouseleave', 'data', onMouseLeave)
     map.on('click', ((map) => (e) => onMouseClick(e, map))(map))
     // viewChanged(true) // lost a lot hours over this fucking line
-    if ($parent.getState().id) {
+    if ($parent.getState()?.id) {
       map.setFilter('data-highlighted', [
         'in',
         'parent_id',

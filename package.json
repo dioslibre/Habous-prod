@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.html",
   "scripts": {
-    "start": "sirv public --cors --host 0.0.0.0",
+    "start": "sirv dist --cors --host 0.0.0.0 --brotli --single -m 31536000",
     "dev": "rm -rf .cache && rm -rf dist && parcel index.html",
-    "build": "rm -rf .cache && rm -rf dist && parcel build index.html"
+    "build": "NODE_ENV=production && rm -rf .cache && rm -rf dist && parcel build index.html"
   },
   "dependencies": {
     "@carbon/icons-react": "^10.15.0",
@@ -41,7 +41,8 @@
     "eslint": "^7.7.0",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-react": "^7.20.6",
-    "parcel-bundler": "^1.6.1",
+    "parcel-bundler": "^1.12.4",
+    "parcel-plugin-bundle-visualiser": "^1.2.0",
     "sirv-cli": "^1.0.6",
     "tailwindcss": "^1.6.2",
     "tailwindcss-transforms": "^2.2.0",
