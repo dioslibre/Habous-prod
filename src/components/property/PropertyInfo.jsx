@@ -62,7 +62,7 @@ const PropertyInfoAction = () => {
             </BXButton>
             <BXButton size={'sm'} kind="ghost" onClick={save}>
               {pending ? (
-                <BXLoading className="left-1 absolute" type="small" />
+                <BXLoading className="left-2 absolute" type="small" />
               ) : (
                 <div className="text-red-600">
                   <Checkmark20 />

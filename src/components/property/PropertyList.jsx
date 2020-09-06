@@ -181,14 +181,12 @@ const PropertyListAction = () => {
 function PropertyListNavigation() {
   const history = useHistory()
   const navigate = useCallback(() => history.push('/parent-list'), [history])
-  const { data, error, pending } = useStore(dataStores.$fetchProperties)
-
-  if (error) return null
+  const { data, pending } = useStore(dataStores.$fetchProperties)
 
   return (
     <Fragment>
       <BXButton kind="ghost" className="w-20 bg-white" size="sm">
-        {error ? null : !data || pending ? (
+        {pending ? (
           <BXLoading className="left-5 absolute" type="small" />
         ) : (
           <div className="px-2 absolute text-blue-600 my-auto text-base">
@@ -251,9 +249,9 @@ const PropertyItem = memo(({ index, row }) => {
 })
 
 const PropertyListMain = ({ item }) => {
-  const { data, error, pending } = useStore(dataStores.$fetchProperties)
+  const { data, pending } = useStore(dataStores.$fetchProperties)
 
-  if (error || data?.length === 0) return null
+  if (data?.length === 0) return null
 
   if (!data || pending)
     return <BXLoading className="absolute top-20 left-24" type="regular" />
