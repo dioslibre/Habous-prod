@@ -190,7 +190,7 @@ function PropertyListNavigation() {
           <BXLoading className="left-5 absolute" type="small" />
         ) : (
           <div className="px-2 absolute text-blue-600 my-auto text-base">
-            {data.length}
+            {data?.length || 0}
           </div>
         )}
       </BXButton>
