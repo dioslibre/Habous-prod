@@ -89,22 +89,23 @@ const PropertyItem = memo(({ row }) => {
           ></BXInput>
         </div>
         <Fragment>
-          <BXButton kind="ghost" onClick={() => setEdit(false)}>
+          <BXButton size="large" kind="ghost" onClick={() => setEdit(false)}>
             <Close20 />
           </BXButton>
           <BXButton
+            size="large"
             kind="ghost"
             onClick={() =>
               editAttributeFx({ model: name, data: { ...row, text } })
             }
           >
-            <div className="text-red-600">
-              {pending ? (
-                <BXLoading className="left-5 absolute" type="small" />
-              ) : (
+            {pending ? (
+              <BXLoading className="left-2 absolute" type="small" />
+            ) : (
+              <div className="text-red-600">
                 <Checkmark20 />
-              )}
-            </div>
+              </div>
+            )}
           </BXButton>
         </Fragment>
       </div>
@@ -117,22 +118,23 @@ const PropertyItem = memo(({ row }) => {
           {row.text}
         </div>
         <Fragment>
-          <BXButton kind="ghost" onClick={() => setRemove(false)}>
+          <BXButton size="large" kind="ghost" onClick={() => setRemove(false)}>
             <Close20 />
           </BXButton>
           <BXButton
+            size="large"
             kind="ghost"
             onClick={() =>
               editAttributeFx({ model: name, data: { ...row, deleted: true } })
             }
           >
-            <div className="text-red-600">
-              {pending ? (
-                <BXLoading className="left-5 absolute" type="small" />
-              ) : (
+            {pending ? (
+              <BXLoading className="left-2 absolute" type="small" />
+            ) : (
+              <div className="text-red-600">
                 <Checkmark20 />
-              )}
-            </div>
+              </div>
+            )}
           </BXButton>
         </Fragment>
       </div>
@@ -156,10 +158,10 @@ const PropertyItem = memo(({ row }) => {
       </div>
       {hover ? (
         <Fragment>
-          <BXButton kind="ghost" onClick={() => setEdit(true)}>
+          <BXButton size="large" kind="ghost" onClick={() => setEdit(true)}>
             <Edit16 />
           </BXButton>
-          <BXButton kind="ghost" onClick={() => setRemove(true)}>
+          <BXButton size="large" kind="ghost" onClick={() => setRemove(true)}>
             <div className="text-red-600">
               <TrashCan16 />
             </div>
@@ -199,7 +201,9 @@ function AttributeList() {
   const name = useStore($attribute)
   const history = useHistory()
 
-  useEffect(() => name || history.push('/'), [])
+  useEffect(() => name || history.push('/'), [name, history])
+
+  if (!name) return null
 
   return (
     <SidebarPanel

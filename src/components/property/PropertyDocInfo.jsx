@@ -116,13 +116,13 @@ const PropertyDocInfoAction = () => {
               <Close20 />
             </BXButton>
             <BXButton size={'sm'} kind="ghost" onClick={save}>
-              <div className="text-red-600">
-                {pending ? (
-                  <BXLoading className="left-5 absolute" type="small" />
-                ) : (
+              {pending ? (
+                <BXLoading className="left-1 absolute" type="small" />
+              ) : (
+                <div className="text-red-600">
                   <Checkmark20 />
-                )}
-              </div>
+                </div>
+              )}
             </BXButton>
           </Fragment>
         ) : (

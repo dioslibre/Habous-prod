@@ -146,17 +146,17 @@ const UserItem = memo(({ row }) => {
           </p>
         </div>
         <Fragment>
-          <BXButton kind="ghost" onClick={() => setRemove(false)}>
+          <BXButton size="sm" kind="ghost" onClick={() => setRemove(false)}>
             <Close20 />
           </BXButton>
-          <BXButton kind="ghost" onClick={save}>
-            <div className="text-red-600">
-              {pending ? (
-                <BXLoading className="left-5 absolute" type="small" />
-              ) : (
+          <BXButton size="sm" kind="ghost" onClick={save}>
+            {pending ? (
+              <BXLoading className="left-2 absolute" type="small" />
+            ) : (
+              <div className="text-red-600">
                 <Checkmark20 />
-              )}
-            </div>
+              </div>
+            )}
           </BXButton>
         </Fragment>
       </div>
@@ -176,10 +176,10 @@ const UserItem = memo(({ row }) => {
       </div>
       {hover ? (
         <Fragment>
-          <BXButton kind="ghost" onClick={navigate}>
+          <BXButton size="sm" kind="ghost" onClick={navigate}>
             <Edit16 />
           </BXButton>
-          <BXButton kind="ghost" onClick={() => setRemove(true)}>
+          <BXButton size="sm" kind="ghost" onClick={() => setRemove(true)}>
             <div className="text-red-600">
               <TrashCan16 />
             </div>

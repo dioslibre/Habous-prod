@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.html",
   "scripts": {
-    "start": "sirv dist --cors --host 0.0.0.0 --brotli --single -m 31536000",
+    "start": "sirv dist --cors --host 0.0.0.0 --etag --immutable --brotli --gzip --single -m 31536000",
     "dev": "rm -rf .cache && rm -rf dist && parcel index.html",
     "build": "NODE_ENV=production && rm -rf .cache && rm -rf dist && parcel build index.html"
   },
