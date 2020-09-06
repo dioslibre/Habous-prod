@@ -78,7 +78,7 @@ const PropertyDocInfoAction = () => {
       // request.response holds response from the server
       // console.log(request.response)
 
-      toast.dismiss(ref.current)
+      setTimeout(() => toast.dismiss(ref.current), 1000)
     })
 
     // send POST request to server

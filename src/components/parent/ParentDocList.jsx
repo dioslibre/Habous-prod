@@ -113,7 +113,7 @@ const ParentDocListAction = () => {
       console.log(request.response)
 
       setTimeout(() => {
-        toast.dismiss(ref.current)
+        setTimeout(() => toast.dismiss(ref.current), 1000)
       }, 1000)
 
       setCount((c) => (c ? c + 1 : 1))

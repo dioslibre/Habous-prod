@@ -22,15 +22,8 @@ import Home16 from '@carbon/icons-react/es/home/16'
 
 function HomeAttributeListNavigation() {
   const history = useHistory()
-  const goBack = useCallback(
-    () => goToAttributeListChanged(false) & history.goBack(),
-    [history]
-  )
-
-  const goHome = useCallback(
-    () => goToAttributeListChanged(false) & history.push(''),
-    [history]
-  )
+  const goBack = useCallback(() => history.goBack(), [history])
+  const goHome = useCallback(() => history.push(''), [history])
 
   return (
     <Fragment>
@@ -100,6 +93,10 @@ function HomeAttributeList() {
   const { data } = useStore(dataStores.$fetchAttributes)
 
   useEffect(() => data || history.push('/'), [])
+
+  useEffect(() => {
+    return () => goToAttributeListChanged(false)
+  }, [])
 
   return (
     <SidebarPanel

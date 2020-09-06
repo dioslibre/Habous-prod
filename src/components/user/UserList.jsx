@@ -1,6 +1,6 @@
 import { h, Fragment } from 'preact'
 import { useHistory } from 'react-router-dom'
-import { useCallback, useState } from 'preact/hooks'
+import { useCallback, useState, useEffect } from 'preact/hooks'
 import { useStore } from 'effector-react'
 import { memo } from 'preact/compat'
 import BXButton from 'carbon-web-components/es/components-react/button/button'
@@ -26,10 +26,7 @@ import Close20 from '@carbon/icons-react/es/close/20'
 
 const UserListAction = () => {
   const history = useHistory()
-  const navigate = useCallback(
-    (path) => goToUserListChanged(false) & history.push(path),
-    [history]
-  )
+  const navigate = useCallback((path) => history.push(path), [history])
 
   return (
     <BXButton
@@ -45,14 +42,8 @@ const UserListAction = () => {
 
 function UserListNavigation() {
   const history = useHistory()
-  const goBack = useCallback(
-    () => goToUserListChanged(false) & history.goBack(),
-    [history]
-  )
-  const goHome = useCallback(
-    () => goToUserListChanged(false) & history.push('/'),
-    [history]
-  )
+  const goBack = useCallback(() => history.goBack(), [history])
+  const goHome = useCallback(() => history.push('/'), [history])
 
   const { data, error, pending } = useStore(dataStores.$fetchUsers)
 
@@ -216,6 +207,9 @@ const UserListMain = ({ item }) => {
 }
 
 function UserList() {
+  useEffect(() => {
+    return () => goToUserListChanged(false)
+  }, [])
   return (
     <SidebarPanel
       header={'Utilisateurs'}
