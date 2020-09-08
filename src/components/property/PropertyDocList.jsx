@@ -55,6 +55,7 @@ const PropertyDocListAction = () => {
     for (let index = 0; index < elRefs.length; index++) {
       const ref = elRefs[index]
       const file = filesToUpload[index]
+      console.log(file.size)
       upload(file, ref, id, user.token)
     }
   }, [elRefs, user])
@@ -101,23 +102,14 @@ const PropertyDocListAction = () => {
       toast.update(ref.current, {
         position: 'bottom-left',
         type: 'error',
+        render: file.name + ' - Erreur',
       })
     })
 
     // request finished event
     request.addEventListener('load', function () {
-      // HTTP status message (200, 404 etc)
-      console.log(request.status)
-
-      // request.response holds response from the server
-      console.log(request.response)
-
-      setTimeout(() => {
-        setTimeout(() => toast.dismiss(ref.current), 1000)
-      }, 1000)
-
+      setTimeout(() => toast.dismiss(ref.current), 1000)
       setCount((c) => (c ? c + 1 : 1))
-
       fetchPropertyDocumentsFx(id)
     })
 

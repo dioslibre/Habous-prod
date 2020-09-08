@@ -222,7 +222,6 @@ export const $propertyDocFormatted = combine(
     if (!doc) return null
     const { data } = attributes
     if (!data) return null
-
     const kb = doc.size / 1024
     const mb = doc.size / (1024 * 1024)
 

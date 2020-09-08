@@ -6,7 +6,6 @@ import { memo } from 'preact/compat'
 import BXButton from 'carbon-web-components/es/components-react/button/button'
 import BXLoading from 'carbon-web-components/es/components-react/loading/loading'
 import SidebarPanel from '../SidebarPanel'
-import CharacterPatterns16 from '@carbon/icons-react/es/character-patterns/16'
 import VirtualScroll from '../../library/VirtualScroll'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import Download16 from '@carbon/icons-react/es/download/16'
@@ -193,13 +192,6 @@ function PropertyListNavigation() {
             {data?.length || 0}
           </div>
         )}
-      </BXButton>
-      <BXButton
-        className="bg-white border-l border-blue-600"
-        kind="ghost"
-        size="sm"
-      >
-        <CharacterPatterns16 />
       </BXButton>
       <BXButton
         className="bg-white border-l border-blue-600"

@@ -7,13 +7,13 @@
       type="text/javascript"
       src="//unpkg.com/file-saver@1.3.3/FileSaver.js"
     ></script>
+    <script src="https://cdn.filesizejs.com/filesize.min.js"></script>
     <title>Portail SIG-HABOUS</title>
   </head>
   <body>
     <script>
       document.body.onload = function () {
         const el = document.getElementById('splash-screen')
-        el.style.zIndex = 30
         el.style.opacity = 0
         setTimeout(() => document.body.removeChild(el), 2000)
       }
@@ -26,7 +26,7 @@
         transition-property: opacity;
         transition-duration: 2000ms;
         transition-timing-function: ease-in;
-        z-index: 30;
+        z-index: 10000;
       "
       class="absolute h-screen w-screen flex items-center bg-white"
     >
@@ -52,4 +52,3 @@
     <script src="/src/index.js"></script>
   </body>
 </html>
-<!DOCTYPE html>

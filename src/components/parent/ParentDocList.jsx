@@ -55,12 +55,12 @@ const ParentDocListAction = () => {
     for (let index = 0; index < elRefs.length; index++) {
       const ref = elRefs[index]
       const file = filesToUpload[index]
+      console.log(file.size)
       upload(file, ref, id, user.token)
     }
   }, [elRefs, user])
 
   useEffect(() => {
-    console.log('count', count)
     if (count === undefined) return
     if (count === elRefs.length) {
       setElRefs([])
@@ -101,6 +101,7 @@ const ParentDocListAction = () => {
       toast.update(ref.current, {
         position: 'bottom-left',
         type: 'error',
+        render: file.name + ' - Erreur',
       })
     })
 

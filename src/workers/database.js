@@ -141,6 +141,8 @@ const fetchDocuments = async ({ model, id }) => {
   const lastUpdated = time[model] || ''
   const res = await Documents.get(model + '_doc', id, lastUpdated)
 
+  console.log(res && res[0].size)
+
   const collection =
     db.getCollection(model + '_doc') ||
     db.addCollection(model + '_doc', { unique: ['id'] })
